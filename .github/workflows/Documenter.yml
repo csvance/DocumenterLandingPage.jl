@@ -4,6 +4,12 @@
 # docs rendered before it merges. No Node is involved: the build is pure
 # Julia (Documenter + the DocumenterLandingPage and DocumenterCodeBlocks
 # plugins, the docs dogfooding both).
+#
+# A `changes` job gates the build on doc-relevant changes: docs/, the plugin
+# source the docs render (the docs dogfood the landing page), the bundled
+# stylesheet, and the workflow itself. Tag pushes always deploy: a release
+# must publish its versioned docs regardless of what the filter sees. A
+# skipped docs job counts as success for required-check gating.
 name: Docs
 
 on:
@@ -16,11 +22,41 @@ concurrency:
   group: docs-${{ github.ref }}
   cancel-in-progress: true
 
+# contents: write is needed because deploydocs pushes the built site to the
+# gh-pages branch; actions: write because julia-actions/cache prunes its own
+# old caches.
 permissions:
-  contents: write   # deploydocs pushes the built site to the gh-pages branch
+  contents: write
+  actions: write
 
 jobs:
+  changes:
+    # Tag pushes skip the filter entirely: the docs job below runs them
+    # unconditionally, and dorny/paths-filter has no sensible base commit to
+    # diff a new tag against.
+    if: ${{ !(github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read   # dorny/paths-filter reads changed files from the PR
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - 'src/**'
+              - 'assets/**'
+              - 'Project.toml'
+              - '.github/workflows/Documenter.yml'
+
   docs:
+    needs: changes
+    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || needs.changes.outputs.docs == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3

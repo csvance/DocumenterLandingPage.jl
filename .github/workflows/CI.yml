@@ -4,6 +4,11 @@
 # fixture twice: once with both plugins (LandingPage + CodeBlocks) and once
 # with base Documenter only, as a subprocess that must never load
 # DocumenterCodeBlocks.
+#
+# A `changes` job computes whether anything the tests depend on changed; the
+# test job runs only when it has, so README-only or docs-only edits don't
+# burn runner time. A skipped test job counts as success for required-check
+# gating.
 name: CI
 
 on:
@@ -22,7 +27,32 @@ permissions:
   actions: write
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read   # dorny/paths-filter reads changed files from the PR
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          # The plugin's code, tests, bundled stylesheet, and the workflow
+          # itself. docs/ is the plugin's own documentation site, which the
+          # test suite does not cover, so a docs-only change skips the tests.
+          filters: |
+            code:
+              - 'src/**'
+              - 'test/**'
+              - 'assets/**'
+              - 'Project.toml'
+              - '.github/workflows/CI.yml'
+
   test:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     name: Julia ${{ matrix.version }}
     runs-on: ubuntu-latest
     strategy:
