@@ -21,19 +21,22 @@ hero:
 features:
   - icon: 📄
     title: YAML frontmatter
-    details: The same VitePress home frontmatter, hero, actions, and feature tiles with emoji icons, all unchanged.
+    details: The exact VitePress home layout, with hero, actions, and emoji feature tiles, all from one YAML frontmatter block.
   - icon: 🎨
     title: Theme-adaptive
-    details: Colors mirror Documenter's own SCSS palette per theme, so the landing follows light, dark, and every catppuccin flavor.
+    details: Mirrors Documenter's own theme palette, so the landing follows light, dark, and every catppuccin flavor.
   - icon: 🧩
-    title: A Documenter plugin
-    details: Pass plugins = [LandingPage()] to makedocs; the CSS is injected automatically, no assets= entries.
+    title: Documenter plugin
+    details: Add it to your plugins list, and the stylesheet is injected automatically, no assets to configure.
   - icon: 🤝
-    title: DocumenterCodeBlocks, together
-    details: Run makedocs(plugins = [LandingPage(), CodeBlocks()]) and both work in one build, the landing page and enhanced code blocks, with no conflicts.
+    title: CodeBlocks-ready
+    details: Pair it with DocumenterCodeBlocks, and both run in one build without conflicts.
   - icon: 🪶
     title: Drop-in
-    details: index.md keeps its @raw html frontmatter block byte-for-byte; nothing else in your docs changes.
+    details: Your frontmatter block stays byte-for-byte as written; only its rendering is replaced by the hero and tiles.
+  - icon: ⚙️
+    title: No toolchain
+    details: No VitePress, no Node, no custom theme, just base Documenter and a YAML block.
 ---
 ```
 

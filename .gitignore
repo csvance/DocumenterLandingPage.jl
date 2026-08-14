@@ -5,3 +5,4 @@ test/docsite/build
 /node_modules/
 /.scratch/
 .idea/
+/.pi-subagents/
