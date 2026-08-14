@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: Get started
-      link: "#Usage"
+      link: /tutorial/
     - theme: alt
       text: View on GitHub
       link: https://github.com/csvance/DocumenterLandingPage.jl
@@ -19,10 +19,6 @@ hero:
     dark: /logo-dark.svg
 
 features:
-  - icon: 🚀
-    title: Tutorial
-    details: Build a landing page end to end, from a frontmatter block to a rendered hero and tiles.
-    link: /tutorial/
   - icon: 📄
     title: YAML frontmatter
     details: The exact VitePress home layout, with hero, actions, and emoji feature tiles, all from one YAML frontmatter block.
