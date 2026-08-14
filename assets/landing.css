@@ -87,7 +87,7 @@ body:has(#landing) #documenter .docs-main > article {
     display: flex;
     align-items: center;
     gap: 4rem;
-    padding: 2rem 0 4rem;
+    padding: 2rem 0 2.5rem;
 }
 #landing .landing-hero__text {
     flex: 0 1 58%;
@@ -167,7 +167,7 @@ body:has(#landing) #documenter .docs-main > article {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    padding: 0.75rem 0 2.5rem;
+    padding: 0.5rem 0 2rem;
 }
 #landing .landing-feature {
     background-color: var(--landing-surface);
