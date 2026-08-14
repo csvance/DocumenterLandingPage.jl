@@ -1,0 +1,100 @@
+# DocumenterLandingPage.jl
+
+A Documenter plugin that renders a VitePress-style landing page (hero and
+emoji feature tiles) from the YAML frontmatter block a page carries in a
+`@raw html` directive.
+
+## Compatibility first
+
+The plugin works with **base Documenter.jl**: the stock `Documenter.HTML`
+format, no VitePress, no Node, no custom theme, and no `assets=` entries in
+your `makedocs` call. The theme picker, OS-based default theme, search, and
+all stock Documenter chrome are untouched; the landing page adapts to
+whatever theme is active (light, dark, and the four catppuccin flavors).
+
+It also composes with [DocumenterCodeBlocks.jl](https://github.com/fredrikekre/DocumenterCodeBlocks.jl):
+both run in one build, the plugin's CSS is injected through the same asset
+mechanism CodeBlocks uses, and the landing page and enhanced code blocks
+coexist on the same pages.
+
+## Usage
+
+```julia
+using Documenter
+using DocumenterLandingPage
+using DocumenterCodeBlocks  # optional, for enhanced code blocks
+
+makedocs(
+    sitename = "MyPackage.jl",
+    format = Documenter.HTML(),
+    plugins = [
+        LandingPage(),
+        CodeBlocks(),  # optional
+    ],
+)
+```
+
+That is the whole integration. There is no theme to select and nothing to
+add to `assets=`; the stylesheet ships with the plugin and is injected
+automatically.
+
+## The frontmatter
+
+The landing page is driven by the same YAML home layout VitePress uses, kept
+in the `@raw html` block at the top of the page (typically `index.md`):
+
+````markdown
+```@raw html
+---
+layout: home
+
+hero:
+  name: MyPackage.jl
+  text: A short headline
+  tagline: One sentence.
+  actions:
+    - theme: brand
+      text: Tutorial
+      link: /tutorial/
+    - theme: alt
+      text: View on GitHub
+      link: https://github.com/MyOrg/MyPackage.jl
+  image:
+    src: /logo.svg
+    alt: MyPackage.jl
+
+features:
+  - icon: ⚡
+    title: A capability
+    details: One sentence about it.
+    link: /tutorial/
+  - icon: 🚀
+    title: Another capability
+    details: One sentence about it.
+---
+```
+````
+
+The plugin intercepts `@raw html` blocks whose content is such frontmatter
+(`layout: home`) and replaces them with the rendered hero and tiles. Every
+other `@raw` block passes through to Documenter unchanged. The YAML stays the
+single source of truth for the landing copy; the rendered hero and features
+match the VitePress home layout, with root-relative links and images
+resolved to page-relative URLs.
+
+## Styling
+
+The landing consumes only CSS custom properties that mirror Documenter's own
+SCSS palette per shipped theme, so it follows the visitor's theme with no
+custom palette of its own. If Documenter ever changes a theme color, only the
+small variable block in `assets/landing.css` needs a one-line update.
+
+## Compatibility
+
+- Documenter 1.17
+- YAML 0.4
+- Julia 1.10 (LTS and newer)
+
+## License
+
+MIT

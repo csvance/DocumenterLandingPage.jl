@@ -36,14 +36,19 @@ framing for every decision here:**
 - `src/assets.jl` - the asset-injection pipeline step.
 - `assets/landing.css` - the bundled stylesheet (theme-adaptive CSS custom
   properties mirroring Documenter's SCSS palette for all six shipped themes).
-- `test/runtests.jl` - 38 tests: frontmatter detection, escaping, and a
-  docsite build with content assertions.
+- `test/runtests.jl` - 70 tests: frontmatter detection, escaping, the docsite
+  fixture built with BOTH plugins (LandingPage + CodeBlocks), and a second
+  clean-room build with base Documenter only (subprocess, so
+  DocumenterCodeBlocks is never loaded; landing markup asserted byte-identical
+  and no CodeBlocks assets leak in).
 - `test/docsite/` - a test fixture site (landing page with the real
-  ReactantServer frontmatter, stub pages, a raw-passthrough fixture, and a
-  code-block fixture) built with both plugins.
+  ReactantServer frontmatter, stub pages, a raw-passthrough fixture, a
+  code-block fixture, and `build_base.jl`, the clean-room build script).
 - `docs/` - the plugin's own docs, dogfooding the landing page. Hosting is
   `csvance`, not EnzymeAD (docs/make.jl already points at
   `github.com/csvance/DocumenterLandingPage.jl`).
+- `README.md` - the compatibility story (base Documenter lead, code-block
+  composition, usage, frontmatter shape, compat pins).
 - `HANDOFF.md` - this file.
 
 ## Current state (all verified)
@@ -67,69 +72,48 @@ framing for every decision here:**
   below renders, search and theme picker work, the Tutorial button navigates,
   and DocumenterCodeBlocks processes the code blocks (its build warnings about
   a few docstrings are informational, not failures).
-- `julia --project=. -e 'using Pkg; Pkg.test()'` passes (38/38).
+- `julia --project=. -e 'using Pkg; Pkg.test()'` passes (70/70).
 
-## Open bug: inconsistent trailing slashes on resolved links
+## Resolved bug: trailing slashes on resolved links (fixed)
 
-Symptom (real docs build, `build/index.html`):
-
-```
-<a class="landing-btn landing-btn--brand" href="tutorial">   <- no slash
-<a class="landing-btn landing-btn--alt" href="api/">         <- slash
-<a class="landing-feature" href="client"                     <- no slash
-...all six tiles: no slash
-```
-
-The frontmatter has `link: /tutorial/`, `/api/`, `/client/`, ... all with
-trailing slashes. Only `api/` keeps it. `src="assets/logo.svg"` resolves
-correctly. Both behaviors come from `_resolve_href` in `src/generate.jl`.
-
-Working hypothesis: `_resolve_href` decides the trailing slash (and the
-assets remap) from the **build-tree filesystem state** (`isdir`/`isfile` under
+Previously the resolver lost the frontmatter's trailing slashes on most
+landing links (`href="tutorial"`, `href="api"` for `/api/`, ...) while the
+`assets/` remap kept working. Root cause: `_resolve_href` decided everything
+from the **build-tree filesystem state** (`isdir`/`isfile` under
 `doc.user.build`), but the expander runs during ExpandTemplates (~order 2.0),
-when page output directories (`build/tutorial/`) do not exist yet (they are
-created in RenderDocument at 6.0); only copied assets exist at that point.
-That explains `assets/logo.svg` working, and most links losing the slash. It
-does NOT explain why `api/` keeps its slash, so there is a real discrepancy
-to pin down before fixing. Possible contributing factor: `doc.user.build` is
-a relative path, so the checks depend on the process working directory at
-expand time, which may differ between pages.
+when page output directories (`build/tutorial/`) do not exist yet; they are
+created in RenderDocument at 6.0. Only copied assets exist at that point
+(SetupBuildDirectory, order 1.0, copies non-md files), which is why
+`build/assets/logo.svg` was found and every page slash was dropped. The
+handoff's earlier observation that `api/` kept its slash in the real docs was
+stale-build noise: Documenter does not clean `build/` unless `clean = true`,
+so a previous run's `build/api/` made `isdir` true; the clean docsite build
+lost every slash.
 
-A debug print was added to `_resolve_href` (uncommitted, in `src/generate.jl`)
-to settle this. Run a docsite build with debug logging:
+Fix (in `src/generate.jl`, debug line removed): the resolver no longer
+consults the build tree. A target ending in `/` is a directory page and keeps
+its trailing slash (VitePress semantics); the `assets/` remap is decided from
+the source tree (`isfile(joinpath(doc.user.root, doc.user.source, "assets",
+t))`), which always exists at expand time; and both sides of the `relpath`
+are anchored at `doc.user.root` so the result does not depend on the process
+working directory. Verified on a clean docsite build and on the real
+ReactantServer docs build: every landing link keeps its frontmatter slash
+and `src="assets/logo.svg"` still resolves.
 
-```
-cd test/docsite
-JULIA_DEBUG=DocumenterLandingPage julia --project=. make.jl
-```
+## Compatibility hardening (done, plus one optional)
 
-and inspect the `resolve` lines (target, pwd(), doc.user.build, resolved,
-isdir, href) for `tutorial` vs `api`. Then remove the debug line.
-
-Likely fix direction: do not consult the build tree at expand time. VitePress
-semantics are enough: a frontmatter target ending in `/` is a directory page,
-one without is a file/asset. Preserve the frontmatter's trailing slash
-whenever the target ends with `/`; decide the `assets/` remap from the
-**source** tree (`docs/src/assets/...`) or by the absence of a trailing slash
-on a non-external target, not from `isdir` on the build tree.
-
-## Compatibility hardening (recommended next steps)
-
-The current tests prove both plugins in ONE docsite, but do not prove the
-plugin works with base Documenter alone. Add:
-
-1. A second docsite variant (or a second `makedocs` call in the tests) built
-   with `plugins = [LandingPage()]` only, no DocumenterCodeBlocks, using the
-   same landing `index.md`. Assert the landing HTML is identical and that no
-   CodeBlocks assets leak in.
-2. Assert the existing docsite contains both the landing HTML and CodeBlocks
-   output (already partially covered; make it explicit that this is the
-   "both plugins" compatibility test).
-3. Write the missing `README.md` with the compatibility story as the lead:
-   base Documenter compatibility, DocumenterCodeBlocks composition, usage
-   (`makedocs(plugins = [LandingPage(), CodeBlocks()])`), the frontmatter
-   shape, and the compat pins (Documenter 1.17, YAML 0.4, julia 1.10).
-4. Optionally a GitHub Actions workflow for the plugin repo (test on
+1. DONE: a second build in the tests, `test/docsite/build_base.jl`, runs the
+   docsite fixture with `plugins = [LandingPage()]` only, as a **subprocess**
+   so DocumenterCodeBlocks is never loaded in that process (Documenter
+   registers every loaded pipeline step for every build, so an in-process
+   build would pick up CodeBlocks' asset step regardless of the plugins list).
+   The test asserts the landing markup is byte-identical to the both-plugins
+   build and that no CodeBlocks assets leak in.
+2. DONE: the main docsite testset is now named "both plugins compose
+   (LandingPage + CodeBlocks)" and asserts both plugins' assets on the same
+   pages plus the CodeBlocks output.
+3. DONE: `README.md` written with the compatibility story as the lead.
+4. Optional, not done: a GitHub Actions workflow for the plugin repo (test on
    julia-actions/setup-julia; the docsite test needs no Node).
 
 ## ReactantServer.jl integration state (do not lose this)

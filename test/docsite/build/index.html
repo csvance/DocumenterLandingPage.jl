@@ -6,8 +6,8 @@
     <h1 class="landing-title">Production inference for Reactant-compiled models</h1>
     <p class="landing-tagline">KServe V2 over gRPC from one GPU to many, with compiled XLA models, Julia-first pre and postprocessing, and the most models per card.</p>
     <div class="landing-actions">
-<a class="landing-btn landing-btn--brand" href="tutorial">Tutorial</a>
-      <a class="landing-btn landing-btn--alt" href="api">API Reference</a>
+<a class="landing-btn landing-btn--brand" href="tutorial/">Tutorial</a>
+      <a class="landing-btn landing-btn--alt" href="api/">API Reference</a>
       <a class="landing-btn landing-btn--alt" href="https://github.com/EnzymeAD/ReactantServer.jl">View on GitHub</a>
     </div>
   </div>
@@ -16,35 +16,35 @@
   </div>
 </header>
 <section class="landing-features" aria-label="Features">
-  <a class="landing-feature" href="client">
+  <a class="landing-feature" href="client/">
 <div class="landing-feature__icon">⚡</div>
 <h2 class="landing-feature__title">KServe V2, natively</h2>
 <p class="landing-feature__details">Speaks the KServe V2 inference API over gRPC, so standard Triton and KServe clients connect unchanged.</p>
   </a>
-  <a class="landing-feature" href="tutorial">
+  <a class="landing-feature" href="tutorial/">
 <div class="landing-feature__icon">🚀</div>
 <h2 class="landing-feature__title">XLA under the hood</h2>
 <p class="landing-feature__details">Models compile ahead of time through Reactant and XLA into device executables; the runtime is device agnostic, CUDA today with CPU for development.</p>
   </a>
-  <a class="landing-feature" href="bundles">
+  <a class="landing-feature" href="bundles/">
 <div class="landing-feature__icon">🧩</div>
 <h2 class="landing-feature__title">Julia-first</h2>
 <p class="landing-feature__details">A bundle's model.jl registers pre and postprocessing in plain Julia, and every convention follows Julia's, column-major with the batch axis last.</p>
   </a>
-  <a class="landing-feature" href="on_demand_weights">
+  <a class="landing-feature" href="on_demand_weights/">
 <div class="landing-feature__icon">💾</div>
 <h2 class="landing-feature__title">On-demand weights</h2>
 <p class="landing-feature__details">Weights stay in host RAM and stream to the GPU under an LRU byte budget, so a card serves more models than fit in VRAM.</p>
   </a>
-  <a class="landing-feature" href="scheduling">
+  <a class="landing-feature" href="scheduling/">
 <div class="landing-feature__icon">🔀</div>
 <h2 class="landing-feature__title">A coalescing scheduler</h2>
 <p class="landing-feature__details">A deficit-weighted, cost-aware scheduler merges same-model requests into one execution at a compiled batch size.</p>
   </a>
-  <a class="landing-feature" href="bundles">
+  <a class="landing-feature" href="bundles/">
 <div class="landing-feature__icon">🔁</div>
 <h2 class="landing-feature__title">Hot reload</h2>
 <p class="landing-feature__details">In dynamic mode the server watches the model repository and reloads bundles online, with no restart.</p>
   </a>
 </section>
-</div><h2 id="What-it-is"><a class="docs-heading-anchor" href="#What-it-is">What it is</a><a id="What-it-is-1"></a><a class="docs-heading-anchor-permalink" href="#What-it-is" title="Permalink"></a></h2><p>ReactantServer.jl is a production inference server for XLA-accelerated models. The landing page above is rendered from the YAML frontmatter in the <code>@raw html</code> block, exactly as VitePress used to render it.</p><h2 id="Start-here"><a class="docs-heading-anchor" href="#Start-here">Start here</a><a id="Start-here-1"></a><a class="docs-heading-anchor-permalink" href="#Start-here" title="Permalink"></a></h2><ul><li>The <a href="tutorial/">Tutorial</a>.</li><li>The <a href="api/">API</a>.</li></ul></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorial/">Tutorial »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 14 August 2026 09:14">Friday 14 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</div><h2 id="What-it-is"><a class="docs-heading-anchor" href="#What-it-is">What it is</a><a id="What-it-is-1"></a><a class="docs-heading-anchor-permalink" href="#What-it-is" title="Permalink"></a></h2><p>ReactantServer.jl is a production inference server for XLA-accelerated models. The landing page above is rendered from the YAML frontmatter in the <code>@raw html</code> block, exactly as VitePress used to render it.</p><h2 id="Start-here"><a class="docs-heading-anchor" href="#Start-here">Start here</a><a id="Start-here-1"></a><a class="docs-heading-anchor-permalink" href="#Start-here" title="Permalink"></a></h2><ul><li>The <a href="tutorial/">Tutorial</a>.</li><li>The <a href="api/">API</a>.</li></ul></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorial/">Tutorial »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 14 August 2026 09:34">Friday 14 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

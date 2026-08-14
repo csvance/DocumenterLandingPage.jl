@@ -23,27 +23,40 @@ end
 #     directory (Documenter copies `src/assets/*` there; VitePress-style
 #     frontmatter references such files by bare name);
 #   - anything else is already relative to the page and passes through.
+#
+# The resolver runs during expansion (order 10.5), before Documenter has
+# created the pages' output directories in `build/` (RenderDocument, order
+# 6.0). It therefore decides from the frontmatter itself, not from the build
+# tree: a target ending in `/` is a directory page and keeps its trailing
+# slash, and the `assets/` remap is decided against the *source* tree, which
+# always exists at expand time (Documenter copies `src/assets/*` to
+# `build/assets/` later, so `build/assets/logo.svg` may or may not exist
+# yet).
 function _resolve_href(doc, page, target::AbstractString)
     isempty(target) && return target
     startswith(target, "#") && return target
-    (startswith(target, "http://") || startswith(target, "https://") ||
-     startswith(target, "mailto:")) && return target
+    (
+        startswith(target, "http://") || startswith(target, "https://") ||
+            startswith(target, "mailto:")
+    ) && return target
     if startswith(target, "/")
         t = lstrip(target, '/')
-        resolved = nothing
-        for candidate in (joinpath(doc.user.build, t), joinpath(doc.user.build, "assets", t))
-            if isdir(candidate) || isfile(candidate)
-                resolved = candidate
-                break
-            end
+        if isfile(joinpath(doc.user.root, doc.user.source, "assets", t))
+            # A bare file under `src/assets/`: it lands in the site's
+            # `assets/` directory, mirroring Documenter's own copy.
+            resolved = joinpath(doc.user.build, "assets", t)
+        else
+            # Otherwise it is a site page.
+            resolved = joinpath(doc.user.build, t)
         end
-        resolved === nothing && (resolved = joinpath(doc.user.build, t))
         pagedir = dirname(page.build)
         isempty(pagedir) && (pagedir = ".")
-        href = relpath(resolved, pagedir)
-        # Keep the frontmatter's trailing slash for directory targets so
-        # browsers hit the directory directly instead of a redirect hop.
-        if endswith(target, "/") && isdir(resolved)
+        # Both paths are relative to `doc.user.root`; anchor them there so
+        # the computation does not depend on the process working directory.
+        href = relpath(joinpath(doc.user.root, resolved), joinpath(doc.user.root, pagedir))
+        # Directory pages keep the frontmatter's trailing slash so browsers
+        # hit the directory directly instead of a redirect hop.
+        if endswith(target, "/") && !endswith(href, "/")
             href = string(href, "/")
         end
         return href
