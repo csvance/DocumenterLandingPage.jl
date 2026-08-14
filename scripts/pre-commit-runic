@@ -33,7 +33,10 @@ if [ ${#targets[@]} -eq 0 ]; then
 fi
 
 echo "pre-commit: formatting ${targets[*]} with Runic..." >&2
-runic --inplace --diff "${targets[@]}"
+# Give runic a real terminal-less stdin so it never mistakes git's own
+# (piped) stdin for input to format; --inplace rejects stdin input, which
+# would otherwise error out under `git commit`.
+runic --inplace --diff "${targets[@]}" < /dev/null
 status=$?
 
 # Re-stage the .jl files the formatter touched so the commit includes the
