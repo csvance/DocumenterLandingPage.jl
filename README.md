@@ -2,6 +2,7 @@
 
 [![Docs-dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://csvance.github.io/DocumenterLandingPage.jl/dev/)
 [![Tests](https://img.shields.io/github/actions/workflow/status/csvance/DocumenterLandingPage.jl/CI.yml?branch=main&label=Tests)](https://github.com/csvance/DocumenterLandingPage.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Julia 1.12](https://img.shields.io/badge/Julia-1.12-9558b2)](https://julialang.org)
 [![code style: runic](https://img.shields.io/badge/code_style-%E1%9A%B1%E1%9A%A2%E1%9A%BE%E1%9B%81%E1%9A%B2-black)](https://github.com/fredrikekre/Runic.jl)
 
 A Documenter plugin that renders a VitePress-style landing page (hero and
