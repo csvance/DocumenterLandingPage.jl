@@ -59,6 +59,7 @@ Pass to `makedocs(plugins = [LandingPage()])`.
 """
 struct LandingPage <: Documenter.Plugin end
 
+include("generate.jl")
 include("expander.jl")
 include("assets.jl")
 
