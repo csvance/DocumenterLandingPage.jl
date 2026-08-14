@@ -159,7 +159,9 @@ body:has(#landing) #documenter .docs-main > article {
 }
 #landing .landing-hero__image img {
     /* Shrink the logo fluidly with the viewport too, in step with the hero
-     * type: from 180px (mobile) up to 320px (desktop). */
+     * type: from 180px (mobile) up to 320px (desktop). A definite width (not
+     * a max) is used so a logo with a small intrinsic size still upscales to
+     * fill the box; height follows the aspect ratio. */
     width: clamp(180px, calc(13.57vw + 75.8px), 320px);
     height: auto;
     position: relative;
@@ -259,7 +261,16 @@ body:has(#landing) #documenter .docs-main > article {
         overflow-wrap: anywhere;
     }
     #landing .landing-hero__image img {
-        width: min(180px, 70%);
+        /* On the stacked layout, size the logo by height so a wide logo is as
+         * prominent as a square icon: the taller dimension is fixed and the
+         * width follows the aspect ratio up to the full column. A width-only
+         * cap left a wide logo as a short strip next to a tall square one.
+         * `object-fit: contain` letterboxes only extreme aspect ratios that
+         * would otherwise overrun the column width. */
+        height: 180px;
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
     }
     #landing .landing-hero__image::before {
         /* On the stacked layout the image column spans the full width but is
