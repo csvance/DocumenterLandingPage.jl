@@ -35,5 +35,6 @@ jobs:
         run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'
       - name: Build and deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # required for previews/status
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}   # SSH deploy key for the gh-pages push
         run: julia --project=docs docs/make.jl
