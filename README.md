@@ -1,5 +1,8 @@
 # DocumenterLandingPage.jl
 
+[![Docs-dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://csvance.github.io/DocumenterLandingPage.jl/dev/)
+[![Tests](https://img.shields.io/github/actions/workflow/status/csvance/DocumenterLandingPage.jl/CI.yml?branch=main&label=Tests)](https://github.com/csvance/DocumenterLandingPage.jl/actions/workflows/CI.yml?query=branch%3Amain)
+
 A Documenter plugin that renders a VitePress-style landing page (hero and
 emoji feature tiles) from the YAML frontmatter block a page carries in a
 `@raw html` directive.
