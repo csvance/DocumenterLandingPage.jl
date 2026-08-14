@@ -12,7 +12,7 @@ hero:
       link: /api/
     - theme: alt
       text: View on GitHub
-      link: https://github.com/EnzymeAD/DocumenterLandingPage.jl
+      link: https://github.com/csvance/DocumenterLandingPage.jl
   image:
     src: /logo.svg
     alt: DocumenterLandingPage.jl
