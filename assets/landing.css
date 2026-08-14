@@ -73,8 +73,12 @@ html.theme--catppuccin-mocha {
     --landing-glow: rgba(137, 180, 250, 0.28);
 }
 
-/* The landing page spans the same content width as a VitePress home layout. */
-body:has(#landing) article#documenter-page {
+/* The landing page spans the same content width as a VitePress home layout
+ * (Documenter caps the content column at 52rem; the VitePress home container
+ * is 72rem). The theme files scope their rules under html.theme--<name>, so
+ * these selectors carry the same specificity to win regardless of order. */
+body:has(#landing) #documenter .docs-main,
+body:has(#landing) #documenter .docs-main > article {
     max-width: 72rem;
 }
 
