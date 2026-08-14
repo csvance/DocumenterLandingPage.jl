@@ -1,0 +1,21 @@
+# Tags releases from JuliaRegistrator's "registered" notification: when a
+# release PR for DocumenterLandingPage is merged (or the registry accepts a
+# new version), JuliaTagBot comments and this workflow creates the matching
+# PkgName-vX.Y.Z git tag. Tags are created from the commit recorded by
+# JuliaRegistrator and signed with the DOCUMENTER_KEY SSH key. The
+# workflow_dispatch trigger allows a manual re-check.
+name: TagBot
+on:
+  issue_comment:
+    types:
+      - created
+  workflow_dispatch:
+jobs:
+  TagBot:
+    if: github.event_name == 'workflow_dispatch' || github.actor == 'JuliaTagBot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: JuliaRegistries/TagBot@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ssh: ${{ secrets.DOCUMENTER_KEY }}

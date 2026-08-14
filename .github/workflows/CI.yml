@@ -1,0 +1,39 @@
+# Test CI on the supported Julia versions: 1.10 is the floor from the
+# Project.toml compat, 1.12 is the current release (the versions used for
+# local development and the docs build). The test suite builds the docsite
+# fixture twice: once with both plugins (LandingPage + CodeBlocks) and once
+# with base Documenter only, as a subprocess that must never load
+# DocumenterCodeBlocks.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# actions: write is needed because julia-actions/cache prunes its own old
+# caches.
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  test:
+    name: Julia ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ['1.10', '1.12']
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        with:
+          version: ${{ matrix.version }}
+      - uses: julia-actions/cache@a45e8fa8be21c18a06b7177052533149e61e9b38 # v3.1.0
+      - name: Run tests
+        run: julia --project=. -e 'using Pkg; Pkg.test()'

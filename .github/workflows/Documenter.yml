@@ -1,0 +1,39 @@
+# Builds the docs on every push and PR, deploys to GitHub Pages on main and on
+# tags. `deploydocs(push_preview = true)` in docs/make.jl makes PR builds land
+# on a preview URL instead of the live site, so a PR can be reviewed with its
+# docs rendered before it merges. No Node is involved: the build is pure
+# Julia (Documenter + the DocumenterLandingPage and DocumenterCodeBlocks
+# plugins, the docs dogfooding both).
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  pull_request:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # deploydocs pushes the built site to the gh-pages branch
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        with:
+          version: '1.12'
+      - uses: julia-actions/cache@a45e8fa8be21c18a06b7177052533149e61e9b38 # v3.1.0
+      - name: Install Julia dependencies
+        # docs/Manifest.toml is gitignored, so the docs environment is
+        # resolved fresh here; DocumenterLandingPage resolves from the docs
+        # [sources] path, the repository root itself.
+        run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'
+      - name: Build and deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: julia --project=docs docs/make.jl
