@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: Get started
-      link: /api/
+      link: "#Usage"
     - theme: alt
       text: View on GitHub
       link: https://github.com/csvance/DocumenterLandingPage.jl
