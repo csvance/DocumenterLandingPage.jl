@@ -88,6 +88,12 @@ body:has(#landing) #documenter .docs-main > article {
     align-items: center;
     gap: 4rem;
     padding: 2rem 0 2.5rem;
+    /* The hero image's glow is absolutely positioned to bleed past its own
+     * box. Containing it keeps that (purely decorative) effect inside the
+     * content column at every width; without this it pushes the page wider
+     * than the viewport in the intermediate widths, which looks like the
+     * hero text is wrapping or cut off. */
+    overflow: hidden;
 }
 #landing .landing-hero__text {
     flex: 0 1 58%;
@@ -95,20 +101,27 @@ body:has(#landing) #documenter .docs-main > article {
 }
 #landing .landing-name {
     margin: 0 0 0.75rem;
-    font-size: 3.25rem;
+    /* Fluid: interpolates between the mobile (1.5rem) and desktop (3.25rem)
+     * sizes as the viewport grows. The ramp is keyed so the desktop size is
+     * only reached once the text column can actually fit the long package
+     * name on one line — Documenter's sidebar consumes ~300px of width, so
+     * this happens later than the column's own 72rem cap. This keeps the
+     * name on a single line across the whole range instead of ugly-wrapping. */
+    font-size: clamp(1.5rem, calc(2.713vw + 3.16px), 3.25rem);
     font-weight: 700;
     line-height: 1.15;
     color: var(--landing-accent);
+    overflow-wrap: anywhere;
 }
 #landing .landing-title {
     margin: 0 0 1.25rem;
-    font-size: 3.25rem;
+    font-size: clamp(2rem, calc(1.938vw + 17.1px), 3.25rem);
     font-weight: 700;
     line-height: 1.15;
 }
 #landing .landing-tagline {
     margin: 0 0 1.75rem;
-    font-size: 1.25rem;
+    font-size: clamp(1.05rem, calc(0.31vw + 14.4px), 1.25rem);
     line-height: 1.6;
 }
 #landing .landing-actions {
@@ -147,7 +160,9 @@ body:has(#landing) #documenter .docs-main > article {
     position: relative;
 }
 #landing .landing-hero__image img {
-    width: min(320px, 100%);
+    /* Shrink the logo fluidly with the viewport too, in step with the hero
+     * type: from 180px (mobile) up to 320px (desktop). */
+    width: clamp(180px, calc(13.57vw + 75.8px), 320px);
     height: auto;
     position: relative;
     z-index: 1;
@@ -209,7 +224,37 @@ body:has(#landing) #documenter .docs-main > article {
 @media (max-width: 768px) {
     #landing .landing-hero {
         flex-direction: column-reverse;
+        align-items: center;
         text-align: left;
+        gap: 2rem;
+    }
+    #landing .landing-hero__text {
+        flex: 1 1 auto;
+        width: 100%;
+        overflow-wrap: anywhere;
+    }
+    /* Desktop hero type is sized for a two-column layout; when stacked it is
+     * oversized and forces ugly mid-word wrapping, so pull it down toward the
+     * VitePress mobile scale and shrink the logo to match. */
+    #landing .landing-name {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    #landing .landing-title {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    #landing .landing-tagline {
+        font-size: 1.05rem;
+        margin-bottom: 1.25rem;
+    }
+    #landing .landing-name,
+    #landing .landing-title,
+    #landing .landing-tagline {
+        overflow-wrap: anywhere;
+    }
+    #landing .landing-hero__image img {
+        width: min(180px, 70%);
     }
     #landing .landing-features {
         grid-template-columns: 1fr;
