@@ -1,6 +1,7 @@
 # The package itself is tracked; the docs build, manifests, and scratch space are not.
 Manifest.toml
 /docs/build/
+test/docsite/build
 /node_modules/
 /.scratch/
 .idea/

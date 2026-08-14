@@ -49,6 +49,10 @@ framing for every decision here:**
   `github.com/csvance/DocumenterLandingPage.jl`).
 - `README.md` - the compatibility story (base Documenter lead, code-block
   composition, usage, frontmatter shape, compat pins).
+- `.github/workflows/` - CI.yml (tests on Julia 1.10 + 1.12),
+  format.yml (runic check via fredrikekre/runic-action v1.7), Documenter.yml
+  (docs build + deploydocs to gh-pages, push_preview on PRs), and TagBot.yml
+  (tags releases from JuliaRegistrator notifications).
 - `HANDOFF.md` - this file.
 
 ## Current state (all verified)
@@ -113,8 +117,14 @@ and `src="assets/logo.svg"` still resolves.
    (LandingPage + CodeBlocks)" and asserts both plugins' assets on the same
    pages plus the CodeBlocks output.
 3. DONE: `README.md` written with the compatibility story as the lead.
-4. Optional, not done: a GitHub Actions workflow for the plugin repo (test on
-   julia-actions/setup-julia; the docsite test needs no Node).
+4. DONE: GitHub Actions workflows, mirroring the ReactantServer conventions
+   (pinned action SHAs, concurrency groups, commented permissions): CI.yml
+   tests on Julia 1.10 (LTS compat floor) and 1.12; format.yml runs
+   fredrikekre/runic-action@v1 with runic 1.7; Documenter.yml builds the
+   docs on every push/PR and deploys via deploydocs to the gh-pages branch
+   on main and tags (`push_preview = true` needs the repo's Pages source set
+   to the gh-pages branch); TagBot.yml tags releases from JuliaRegistrator
+   notifications (needs the DOCUMENTER_KEY secret for signed tags).
 
 ## ReactantServer.jl integration state (do not lose this)
 
