@@ -1,0 +1,19 @@
+name = "DocumenterLandingPage"
+uuid = "1c52b33b-3e2f-4e99-b3b5-a6ad63f0d6d2"
+version = "0.1.0"
+authors = ["Carroll Vance <cs.vance@icloud.com>"]
+
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
+
+[compat]
+Documenter = "1.17"
+YAML = "0.4"
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
