@@ -62,6 +62,7 @@ hero:
   image:
     src: /logo.svg
     alt: MyPackage.jl
+    dark: /logo-dark.svg   # optional: a variant for dark themes
 
 features:
   - icon: ⚡
@@ -80,7 +81,11 @@ The plugin intercepts `@raw html` blocks whose content is such frontmatter
 other `@raw` block passes through to Documenter unchanged. The YAML stays the
 single source of truth for the landing copy; the rendered hero and features
 match the VitePress home layout, with root-relative links and images
-resolved to page-relative URLs.
+resolved to page-relative URLs. An optional `image.dark` gives the hero a
+second image for dark themes: the plugin emits both variants with
+Documenter's own `.docs-light-only`/`.docs-dark-only` classes, which every
+shipped theme stylesheet compiles to show one or the other, so a logo with a
+light and a dark variant (like Documenter's own) adapts automatically.
 
 ## Styling
 

@@ -46,7 +46,10 @@ framing for every decision here:**
   code-block fixture, and `build_base.jl`, the clean-room build script).
 - `docs/` - the plugin's own docs, dogfooding the landing page. Hosting is
   `csvance`, not EnzymeAD (docs/make.jl already points at
-  `github.com/csvance/DocumenterLandingPage.jl`).
+  `github.com/csvance/DocumenterLandingPage.jl`). The docs icon is
+  Documenter.jl's own logo (`docs/src/assets/logo.svg` and `logo-dark.svg`),
+  shown in the sidebar via Documenter's automatic light/dark logo handling
+  and in the hero via the plugin's optional `image.dark` frontmatter key.
 - `README.md` - the compatibility story (base Documenter lead, code-block
   composition, usage, frontmatter shape, compat pins).
 - `.github/workflows/` - CI.yml (tests on Julia 1.10 + 1.12),
@@ -76,7 +79,14 @@ framing for every decision here:**
   below renders, search and theme picker work, the Tutorial button navigates,
   and DocumenterCodeBlocks processes the code blocks (its build warnings about
   a few docstrings are informational, not failures).
-- `julia --project=. -e 'using Pkg; Pkg.test()'` passes (70/70).
+- The hero image supports an optional `image.dark` frontmatter key: when
+  present, the plugin emits both `<img class="docs-light-only">` and `<img
+  class="docs-dark-only">` and Documenter's own theme CSS (every shipped
+  theme stylesheet compiles one of the two classes to `display: none`)
+  shows the right variant per theme, the same mechanism Documenter's sidebar
+  logo uses. Without the key, a single image is emitted, so the real
+  ReactantServer frontmatter (no `dark` key) renders exactly as before.
+- `julia --project=. -e 'using Pkg; Pkg.test()'` passes (79/79).
 
 ## Resolved bug: trailing slashes on resolved links (fixed)
 

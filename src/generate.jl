@@ -115,8 +115,20 @@ function _render_landing(data::AbstractDict, doc, page)
     if image isa AbstractDict && !isempty(get(image, "src", ""))
         src = _esc(_resolve_href(doc, page, image["src"]))
         alt = _esc(get(image, "alt", ""))
+        dark = get(image, "dark", "")
         push!(parts, "  <div class=\"landing-hero__image\">")
-        push!(parts, "    <img src=\"$(src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
+        if !isempty(dark)
+            # Optional `dark` variant for dark themes, swapped in by
+            # Documenter's own theme CSS: every shipped theme stylesheet
+            # compiles `.docs-dark-only { display: none }` (light themes) or
+            # `.docs-light-only { display: none }` (dark themes), the same
+            # mechanism Documenter's sidebar logo uses.
+            dark_src = _esc(_resolve_href(doc, page, dark))
+            push!(parts, "    <img class=\"docs-light-only\" src=\"$(src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
+            push!(parts, "    <img class=\"docs-dark-only\" src=\"$(dark_src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
+        else
+            push!(parts, "    <img src=\"$(src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
+        end
         push!(parts, "  </div>")
     end
     push!(parts, "</header>")

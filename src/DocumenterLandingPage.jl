@@ -31,6 +31,7 @@ hero:
   image:
     src: /logo.svg
     alt: MyPackage.jl
+    dark: /logo-dark.svg   # optional: a variant for dark themes
 
 features:
   - icon: ⚡
@@ -43,7 +44,12 @@ features:
 
 The frontmatter is exactly the VitePress home layout: a `hero` block (name,
 text, tagline, actions, image) and a `features` block (icon, title, details,
-link per tile). The plugin intercepts only `@raw html` blocks whose content is
+link per tile). An optional `image.dark` gives the hero a second image for
+dark themes: the plugin emits both variants with Documenter's own
+`.docs-light-only`/`.docs-dark-only` classes, which every shipped theme
+stylesheet compiles to show one or the other (the same mechanism
+Documenter's sidebar logo uses). The plugin intercepts only `@raw html`
+blocks whose content is
 such frontmatter (`layout: home`) and replaces them with the rendered hero and
 tiles; every other `@raw` block passes through to Documenter unchanged. The
 YAML stays the single source of truth for the landing copy.

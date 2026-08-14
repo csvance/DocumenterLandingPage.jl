@@ -62,6 +62,43 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         @test DLP._esc("plain text") == "plain text"
     end
 
+    @testset "theme-aware hero image" begin
+        # `image.dark` emits both logo variants with Documenter's own
+        # light/dark classes (every shipped theme stylesheet compiles one of
+        # them to `display: none`, so exactly one image shows per theme);
+        # without it, a single image is emitted.
+        docsite = joinpath(@__DIR__, "docsite")
+        doc = (user = (root = docsite, source = "src", build = "build"),)
+        page = (build = "build/index.html",)
+        base = Dict{Any, Any}(
+            "layout" => "home",
+            "hero" => Dict{Any, Any}(
+                "name" => "X",
+                "image" => Dict{Any, Any}(
+                    "src" => "/logo.svg", "alt" => "Logo", "dark" => "/logo-dark.svg",
+                ),
+            ),
+            "features" => Any[],
+        )
+        html = DLP._render_landing(base, doc, page)
+        @test occursin("class=\"docs-light-only\"", html)
+        @test occursin("class=\"docs-dark-only\"", html)
+        # The light variant resolves through the assets/ remap; the dark one
+        # is not in the docsite's src/assets, so it resolves as a page href.
+        @test occursin("src=\"assets/logo.svg\"", html)
+        @test occursin("src=\"logo-dark.svg\"", html)
+        @test count("<img ", html) == 2
+
+        # Without `dark`, the hero carries a single image, unchanged.
+        single = deepcopy(base)
+        delete!(single["hero"]["image"], "dark")
+        html2 = DLP._render_landing(single, doc, page)
+        @test !occursin("docs-light-only", html2)
+        @test !occursin("docs-dark-only", html2)
+        @test count("<img ", html2) == 1
+        @test occursin("src=\"assets/logo.svg\"", html2)
+    end
+
     @testset "both plugins compose (LandingPage + CodeBlocks)" begin
         # The docsite fixture is built with both plugins in one makedocs call:
         # this is the compatibility test that the landing page and the enhanced
