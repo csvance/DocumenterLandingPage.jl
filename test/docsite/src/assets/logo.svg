@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 16 56 32" width="56" height="32" role="img" aria-label="ReactantServer.jl">
+  <g fill="#E8A33D">
+    <rect x="8" y="42" width="13" height="6" rx="2"></rect>
+    <rect x="24" y="42" width="32" height="6" rx="2"></rect>
+  </g>
+  <rect x="4" y="16" width="56" height="26" rx="5" fill="#14161A"></rect>
+  <circle cx="14" cy="29" r="8" fill="#9558B2"></circle>
+  <circle cx="14" cy="29" r="2.8" fill="#14161A"></circle>
+  <circle cx="32" cy="29" r="8" fill="#389826"></circle>
+  <circle cx="32" cy="29" r="2.8" fill="#14161A"></circle>
+  <circle cx="50" cy="29" r="8" fill="#CB3C33"></circle>
+  <circle cx="50" cy="29" r="2.8" fill="#14161A"></circle>
+</svg>
