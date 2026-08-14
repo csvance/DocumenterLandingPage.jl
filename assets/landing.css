@@ -88,12 +88,10 @@ body:has(#landing) #documenter .docs-main > article {
     align-items: center;
     gap: 4rem;
     padding: 2rem 0 2.5rem;
-    /* The hero image's glow is absolutely positioned to bleed past its own
-     * box. Containing it keeps that (purely decorative) effect inside the
-     * content column at every width; without this it pushes the page wider
-     * than the viewport in the intermediate widths, which looks like the
-     * hero text is wrapping or cut off. */
-    overflow: hidden;
+    /* Clip only the horizontal axis so the hero can never push the page
+     * wider than the viewport. The glow stays visible in full vertically,
+     * so it renders as an unclipped circle instead of getting sliced flat. */
+    overflow-x: clip;
 }
 #landing .landing-hero__text {
     flex: 0 1 58%;
@@ -167,13 +165,20 @@ body:has(#landing) #documenter .docs-main > article {
     position: relative;
     z-index: 1;
 }
-/* Soft radial glow behind the hero image, in the theme's accent hue. */
+/* Soft radial glow behind the hero image, in the theme's accent hue. The
+ * box is forced square (aspect-ratio: 1) so the radial gradient renders as a
+ * true circle and looks isotropic on every layout, and it is kept within the
+ * image column so it never bleeds past the content column on the right. */
 #landing .landing-hero__image::before {
     content: "";
     position: absolute;
-    inset: -20%;
-    background: radial-gradient(circle at center, var(--landing-glow), transparent 65%);
-    filter: blur(30px);
+    left: 50%;
+    top: 50%;
+    width: 88%;
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, var(--landing-glow), transparent 70%);
+    filter: blur(20px);
     z-index: 0;
 }
 
@@ -255,6 +260,13 @@ body:has(#landing) #documenter .docs-main > article {
     }
     #landing .landing-hero__image img {
         width: min(180px, 70%);
+    }
+    #landing .landing-hero__image::before {
+        /* On the stacked layout the image column spans the full width but is
+         * only as tall as the image (~180px). A column-relative glow would
+         * balloon at wider phone widths, so size it to the image instead: a
+         * fixed circle that hugs the logo and stays fully within the hero. */
+        width: 220px;
     }
     #landing .landing-features {
         grid-template-columns: 1fr;
