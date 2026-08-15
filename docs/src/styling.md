@@ -28,11 +28,11 @@ spills over the page background:
 --landing-glow-filter: blur(40px);   /* the disc's filter, settable too */
 ```
 
-The glow stops carry alpha — 0.5 in the light themes, 0.6 in the dark ones —
-so the halo reads soft over the page background while staying more present
-on dark themes (where the background offers less contrast against it). The
-name gradient is deliberately fully opaque: it paints *through* the glyphs,
-so translucency would just fade the name into the page.
+The glow stops carry ~0.5 alpha in every theme. The same translucent stops
+read stronger on dark themes: the dark background preserves the accent's
+chroma, while on light themes the background washes the halo toward white.
+The name gradient is deliberately fully opaque: it paints *through* the
+glyphs, so translucency would just fade the name into the page.
 
 ### Per-theme defaults
 
@@ -43,12 +43,12 @@ transcribed from `assets/landing.css`:
 
 | Theme | Accent | Name gradient (opaque) | Glow gradient (alpha) |
 |---|---|---|---|
-| `documenter-light` (`:root`) | `#2e63b8` | `#2e63b8, #6d51b0 50%, #92418e` | `#2e63b880 50%, #89459980 50%` (0.5) |
-| `documenter-dark` | `#1abc9c` | `#1abc9c, #00b7ce 50%, #51aaee` | `#1abc9c99 50%, #38aee799 50%` (0.6) |
-| `catppuccin-latte` | `#1e66f5` | `#1e66f5, #8646e4 50%, #b927ad` | `#1e66f580 50%, #ad30c080 50%` (0.5) |
-| `catppuccin-frappe` | `#8caaee` | `#8caaee, #b69ce3 50%, #d592c5` | `#8caaee99 50%, #ce94cf99 50%` (0.6) |
-| `catppuccin-macchiato` | `#8aadf4` | `#8aadf4, #b79eea 50%, #d893cb` | `#8aadf499 50%, #d096d699 50%` (0.6) |
-| `catppuccin-mocha` | `#89b4fa` | `#89b4fa, #b8a5f3 50%, #db99d5` | `#89b4fa99 50%, #d39cdf99 50%` (0.6) |
+| `documenter-light` (`:root`) | `#2e63b8` | `#2e63b8, #6d51b0 50%, #92418e` | `#2e63b880 50%, #89459980 50%` |
+| `documenter-dark` | `#1abc9c` | `#1abc9c, #00b7ce 50%, #51aaee` | `#1abc9c80 50%, #38aee780 50%` |
+| `catppuccin-latte` | `#1e66f5` | `#1e66f5, #8646e4 50%, #b927ad` | `#1e66f580 50%, #ad30c080 50%` |
+| `catppuccin-frappe` | `#8caaee` | `#8caaee, #b69ce3 50%, #d592c5` | `#8caaee80 50%, #ce94cf80 50%` |
+| `catppuccin-macchiato` | `#8aadf4` | `#8aadf4, #b79eea 50%, #d893cb` | `#8aadf480 50%, #d096d680 50%` |
+| `catppuccin-mocha` | `#89b4fa` | `#89b4fa, #b8a5f3 50%, #db99d5` | `#89b4fa80 50%, #d39cdf80 50%` |
 
 ### Why the stops look the way they do
 

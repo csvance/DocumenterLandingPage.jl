@@ -109,11 +109,12 @@ held at about the accent's own chroma so the blend never passes through the
 desaturated gray that plain sRGB gradient interpolation produces between
 distant hues. The glow is translucent — the accent and its ~+60° hue
 neighbor split hard, with a 40px blur as the transition, at ~0.5 alpha in
-the light themes and ~0.6 in the dark ones, so the halo reads soft over the
-page background while staying present on dark. Each of Documenter's six
-themes carries its own derived pair (through the same `html.theme--<name>`
-selectors the palette uses, mirroring Documenter's own SCSS palette), so the
-hero follows the visitor's theme just like the rest of the landing.
+every theme — the same translucent stops read stronger on dark themes,
+where the dark background preserves the accent's chroma instead of washing
+the halo toward white. Each of Documenter's six themes carries its own
+derived pair (through the same `html.theme--<name>` selectors the palette
+uses, mirroring Documenter's own SCSS palette), so the hero follows the
+visitor's theme just like the rest of the landing.
 
 Everything is overridable with the same variables VitePress exposes for its
 hero (`--vp-home-hero-name-*` and `--vp-home-hero-image-*` there,
