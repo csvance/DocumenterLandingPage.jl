@@ -13,7 +13,31 @@
  *   - `--landing-border`:    a step between       (tile borders)
  *   - `--landing-accent`:    `$link`              (name, brand button)
  *   - `--landing-accent-contrast`: text on the brand button
- *   - `--landing-glow`:      the logo's blurred glow disc, accent hue (~45% alpha)
+ *   - `--landing-name-color-default` / `--landing-name-background-default`:
+ *                            the shipped per-theme name gradient (the theme
+ *                            accent rotating along the hue wheel, middle
+ *                            stop at the endpoints' chroma so the blend
+ *                            never desaturates)
+ *   - `--landing-glow-default`: the shipped per-theme glow disc — the
+ *                            accent and its hue-wheel neighbor split hard
+ *                            (VitePress's canonical glow shape), stops
+ *                            translucent so the halo reads soft over any
+ *                            page background (~0.6 alpha in the light
+ *                            themes, ~0.7 in the dark ones — stronger on
+ *                            dark, where the background offers less
+ *                            contrast against the glow)
+ *
+ * User overrides (never defined here, so a user stylesheet wins regardless
+ * of load order — the same contract VitePress's --vp-home-hero-* variables
+ * provide; every rule below consumes the override first and falls back to
+ * the shipped default):
+ *
+ *   - `--landing-name-color`: with a gradient, set to `transparent`;
+ *                            `currentcolor` + `--landing-name-background:
+ *                            none` restores the solid accent name
+ *   - `--landing-name-background`: replaces the shipped name gradient
+ *   - `--landing-glow`: the glow disc — any `background` value
+ *   - `--landing-glow-filter`: the glow disc's filter (default `blur(40px)`)
  *
  * Text and headings are deliberately left to inherit from the theme; nothing
  * here overrides Documenter's own chrome.
@@ -25,7 +49,15 @@
     --landing-border: #e0e0e0;
     --landing-accent: #2e63b8;
     --landing-accent-contrast: #fff;
-    --landing-glow: rgba(46, 99, 184, 0.45);
+    /* Default gradients: the theme accent rotating ~70° along the OKLCH hue
+     * wheel (name) and its ~60° neighbor (glow), every stop held at the
+     * accent's own chroma so the sRGB blend never passes through gray. The
+     * name gradient is fully opaque; the glow stops carry alpha (see the
+     * --landing-glow-default notes in the header) so the blurred halo stays
+     * soft over the page instead of reading as a solid paint. */
+    --landing-name-color-default: transparent;
+    --landing-name-background-default: linear-gradient(120deg, #2e63b8, #6d51b0 50%, #92418e);
+    --landing-glow-default: linear-gradient(-45deg, #2e63b899 50%, #89459999 50%);
 }
 
 html.theme--documenter-dark {
@@ -34,7 +66,8 @@ html.theme--documenter-dark {
     --landing-border: #343c3d;
     --landing-accent: #1abc9c;
     --landing-accent-contrast: #00332a;
-    --landing-glow: rgba(26, 188, 156, 0.45);
+    --landing-name-background-default: linear-gradient(120deg, #1abc9c, #00b7ce 50%, #51aaee);
+    --landing-glow-default: linear-gradient(-45deg, #1abc9cb3 50%, #38aee7b3 50%);
 }
 
 html.theme--catppuccin-latte {
@@ -43,7 +76,8 @@ html.theme--catppuccin-latte {
     --landing-border: #ccd0da;
     --landing-accent: #1e66f5;
     --landing-accent-contrast: #fff;
-    --landing-glow: rgba(30, 102, 245, 0.42);
+    --landing-name-background-default: linear-gradient(120deg, #1e66f5, #8646e4 50%, #b927ad);
+    --landing-glow-default: linear-gradient(-45deg, #1e66f599 50%, #ad30c099 50%);
 }
 
 html.theme--catppuccin-frappe {
@@ -52,7 +86,8 @@ html.theme--catppuccin-frappe {
     --landing-border: #414559;
     --landing-accent: #8caaee;
     --landing-accent-contrast: #303446;
-    --landing-glow: rgba(140, 170, 238, 0.42);
+    --landing-name-background-default: linear-gradient(120deg, #8caaee, #b69ce3 50%, #d592c5);
+    --landing-glow-default: linear-gradient(-45deg, #8caaeeb3 50%, #ce94cfb3 50%);
 }
 
 html.theme--catppuccin-macchiato {
@@ -61,7 +96,8 @@ html.theme--catppuccin-macchiato {
     --landing-border: #363a4f;
     --landing-accent: #8aadf4;
     --landing-accent-contrast: #24273a;
-    --landing-glow: rgba(138, 173, 244, 0.42);
+    --landing-name-background-default: linear-gradient(120deg, #8aadf4, #b79eea 50%, #d893cb);
+    --landing-glow-default: linear-gradient(-45deg, #8aadf4b3 50%, #d096d6b3 50%);
 }
 
 html.theme--catppuccin-mocha {
@@ -70,7 +106,8 @@ html.theme--catppuccin-mocha {
     --landing-border: #313244;
     --landing-accent: #89b4fa;
     --landing-accent-contrast: #1e1e2e;
-    --landing-glow: rgba(137, 180, 250, 0.42);
+    --landing-name-background-default: linear-gradient(120deg, #89b4fa, #b8a5f3 50%, #db99d5);
+    --landing-glow-default: linear-gradient(-45deg, #89b4fab3 50%, #d39cdfb3 50%);
 }
 
 /* The landing page spans the same content width as a VitePress home layout
@@ -136,8 +173,67 @@ body:has(#landing) #documenter .docs-main > article {
     font-size: clamp(1.5rem, 4cqi, 3.25rem);
     font-weight: 700;
     line-height: 1.15;
+    /* Solid accent fill: the default look, and the fallback for browsers
+     * without background-clip:text (the @supports block below keeps the
+     * transparent fill out of them, so the name is never invisible). */
     color: var(--landing-accent);
+    /* Shrink the box to the text (VitePress sets this on .name too): a
+     * clipped gradient spans the element's whole box, so a full-width block
+     * would paint the gradient far past the glyphs and the name would show
+     * only its first color. With nowrap the fit-content box is exactly the
+     * one line of text, and the gradient spans precisely the glyphs. */
+    width: fit-content;
     white-space: nowrap;
+}
+/* Gradient package name: ON by default, in a gradient derived from the
+ * theme's own accent (see the --landing-name-*-default blocks above), with
+ * VitePress's --vp-home-hero-name-* override contract: set, in your own
+ * stylesheet,
+ *     --landing-name-color: transparent;
+ *     --landing-name-background: linear-gradient(120deg, #9558b2, #cb3c33);
+ * together (setting only the color would leave a transparent fill over a
+ * non-matching background; setting only the background leaves the default
+ * fill painted over it), or restore the solid accent name with
+ *     --landing-name-color: currentcolor; --landing-name-background: none;
+ * Per-theme variants use the same html.theme--<name> selectors the palette
+ * blocks above use. The prefixed clip declaration comes first so the
+ * standard property wins where both parse, and the OR in the feature query
+ * is required: unprefixed background-clip:text only exists from
+ * Chrome 120 / Safari 15.5, while the technique works in far older engines
+ * through the -webkit- spelling. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    #landing .landing-name {
+        background-image: var(--landing-name-background, var(--landing-name-background-default, none));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: var(--landing-name-color, var(--landing-name-color-default, currentcolor));
+    }
+}
+/* Forced-colors mode (Windows High Contrast) strips backgrounds but keeps
+ * the author's text fill: without this, a transparent-filled name renders
+ * invisible. The fill property must be reset too — it overrides `color`. */
+@media (forced-colors: active) {
+    #landing .landing-name {
+        background-image: none;
+        color: CanvasText;
+        -webkit-text-fill-color: CanvasText;
+    }
+}
+/* Print/PDF: browsers commonly skip background graphics, and a clipped
+ * gradient IS a background — restore the solid fill on paper. */
+@media print {
+    #landing .landing-name {
+        background-image: none;
+        -webkit-text-fill-color: var(--landing-accent);
+    }
+}
+/* Selecting the gradient name can swallow the glyphs (the selection
+ * highlight covers the clipped background while the fill stays
+ * transparent), so selection gets an explicit visible pair. */
+#landing .landing-name::selection {
+    background: var(--landing-accent);
+    color: #fff;
+    -webkit-text-fill-color: #fff;
 }
 #landing .landing-title {
     margin: 0 0 1.25rem;
@@ -210,9 +306,11 @@ body:has(#landing) #documenter .docs-main > article {
     position: relative;
     z-index: 1;
 }
-/* Glow behind the logo, in the theme's accent hue: a solid accent disc as
- * wide as the box itself, its soft falloff provided entirely by the 40px
- * blur (a pre-faded radial gradient on top of a blur reads dim and small).
+/* Glow behind the logo, in the theme's accent hue: a translucent accent
+ * disc as wide as the box itself (see the --landing-glow-default stops in
+ * the palette blocks above — ~0.6 alpha in light themes, ~0.7 in dark),
+ * its soft falloff provided by the 40px blur over the page background (a
+ * pre-faded radial gradient on top of a blur reads dim and small).
  * The halo is meant to spill past the box over whatever surrounds the hero
  * — column gutters, padding, the page background — the way VitePress's own
  * home hero glow does: nothing between here and the viewport clips
@@ -230,8 +328,8 @@ body:has(#landing) #documenter .docs-main > article {
     aspect-ratio: 1 / 1;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    background: var(--landing-glow);
-    filter: blur(40px);
+    background: var(--landing-glow, var(--landing-glow-default));
+    filter: var(--landing-glow-filter, blur(40px));
     z-index: 0;
 }
 
