@@ -206,10 +206,43 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         end
 
         @testset "stylesheets injected on every page" begin
-            # Both plugins' assets ride Documenter's own asset machinery.
+            # Both plugins' assets ride Documenter's own asset machinery, and
+            # the fixture's custom stylesheet (exercising the opt-in gradient
+            # knobs with the Lux.jl recipe) rides alongside them.
             @test occursin("assets/documenterlandingpage/landing.css", index)
+            @test occursin("assets/custom.css", index)
             @test occursin("assets/documenterlandingpage/landing.css", rawpage)
             @test occursin("assets/documentercodeblocks/line-numbers.css", index)
+        end
+
+        @testset "shipped stylesheet gradient contract" begin
+            # The stylesheet we ship must keep the opt-in machinery intact:
+            # the name-gradient feature query with both clip spellings, the
+            # fill chained to the opt-in variable, the fallback guards, and
+            # the configurable glow filter.
+            css = read(joinpath(build, "assets", "documenterlandingpage", "landing.css"), String)
+            @test occursin("@supports ((-webkit-background-clip: text) or (background-clip: text))", css)
+            # The name gradient defaults on, chained so a user stylesheet
+            # wins regardless of load order, and every shipped theme carries
+            # its own accent-derived default gradient.
+            @test occursin(
+                "background-image: var(--landing-name-background, var(--landing-name-background-default, none))",
+                css,
+            )
+            @test occursin(
+                "-webkit-text-fill-color: var(--landing-name-color, var(--landing-name-color-default, currentcolor))",
+                css,
+            )
+            @test count("--landing-name-background-default:", css) == 6
+            @test count("--landing-glow-default:", css) == 6
+            @test occursin("@media (forced-colors: active)", css)
+            @test occursin("@media print", css)
+            # The glow disc chains the user knob over the shipped per-theme
+            # default (a hard-split gradient in the accent hues), so a user
+            # stylesheet wins regardless of load order (the plugin's own
+            # sheet loads after user assets).
+            @test occursin("background: var(--landing-glow, var(--landing-glow-default))", css)
+            @test occursin("filter: var(--landing-glow-filter, blur(40px))", css)
         end
 
         @testset "non-landing @raw blocks pass through" begin

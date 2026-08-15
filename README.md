@@ -99,6 +99,68 @@ SCSS palette per shipped theme, so it follows the visitor's theme with no
 custom palette of its own. If Documenter ever changes a theme color, only the
 small variable block in `assets/landing.css` needs a one-line update.
 
+### Gradient name and glow
+
+The hero ships with gradients by default: the package name is painted in a
+gradient derived from the theme's own accent color, and the logo sits on the
+VitePress-style glow — the accent and its hue-wheel neighbor split hard, with
+the blur as the transition. Every stop is held at the accent's own chroma, so
+the blends never pass through the desaturated gray that plain sRGB gradient
+interpolation produces between distant hues. Each of Documenter's six themes
+carries its own derived pair, so the hero follows the visitor's theme just
+like the rest of the landing.
+
+Everything is overridable with the same variables VitePress exposes for its
+hero (`--vp-home-hero-name-*` and `--vp-home-hero-image-*` there,
+`--landing-*` here) — declare them in your own stylesheet (passed to
+`makedocs` via `assets=`) and they win regardless of stylesheet load order.
+For example, the Lux.jl name gradient in the Julia colors:
+
+```css
+:root {
+    /* Set both name variables together: the color unhides the gradient, the
+     * background paints it. The middle stop matters: browsers interpolate
+     * gradients in sRGB, where distant hues blend through desaturated grays
+     * — purple straight to red dips to a muted mauve in the middle. A stop
+     * on the hue arc between the two, at about the endpoints' own chroma,
+     * keeps the whole name saturated (this is why the Lux.jl dark theme
+     * lists a middle color). */
+    --landing-name-color: transparent;
+    --landing-name-background: linear-gradient(120deg, #9558b2 30%, #b8418f 65%, #cb3c33);
+
+    /* The glow disc accepts any `background` value. Keep OPAQUE stops with a
+     * hard split and let the blur be the transition (VitePress's canonical
+     * `-45deg, #bd34fe 50%, #47caff 50%` shape): translucent stops
+     * interpolate through desaturated grays between the colors, and
+     * analogous colors keep the blurred seam itself saturated. */
+    --landing-glow: linear-gradient(-45deg, #9558b2 50%, #cb3c33 50%);
+    --landing-glow-filter: blur(40px); /* default */
+}
+
+/* Dark themes get their own stops through the same selectors the plugin's
+ * palette uses (any of: html.theme--documenter-dark, -latte, -frappe,
+ * -macchiato, -mocha). Three saturated Julia brand colors — the blue middle
+ * stop keeps the purple -> green blend from passing through gray. */
+html.theme--documenter-dark {
+    --landing-name-background: linear-gradient(120deg, #9558b2 15%, #4063d8 52%, #389826 90%);
+    --landing-glow: linear-gradient(-45deg, #389826 50%, #4063d8 50%);
+    --landing-glow-filter: blur(56px);
+}
+```
+
+To restore the plain solid-accent package name:
+
+```css
+:root {
+    --landing-name-color: currentcolor;
+    --landing-name-background: none;
+}
+```
+
+The gradient name degrades gracefully: browsers without `background-clip:
+text` keep the solid accent fill, forced-colors (Windows High Contrast) and
+print media restore it, and selecting the text stays readable.
+
 ## Compatibility
 
 - Documenter 1.17

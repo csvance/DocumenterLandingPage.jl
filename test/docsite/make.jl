@@ -11,7 +11,15 @@ makedocs(
     # The docsite is a test fixture; its git repo has no remote, so disable
     # remote-based edit links and the navbar repository link.
     remotes = nothing,
-    format = Documenter.HTML(edit_link = nothing, repolink = nothing, inventory_version = "0.1.0"),
+    # The fixture's custom stylesheet exercises the plugin's opt-in gradient
+    # knobs (see src/assets/custom.css); it rides Documenter's own asset
+    # machinery like any user stylesheet would.
+    format = Documenter.HTML(
+        edit_link = nothing,
+        repolink = nothing,
+        inventory_version = "0.1.0",
+        assets = ["assets/custom.css"],
+    ),
     plugins = [
         LandingPage(),
         CodeBlocks(),

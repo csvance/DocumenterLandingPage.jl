@@ -18,7 +18,12 @@ makedocs(
     sitename = "DocumenterLandingPage.jl",
     doctest = false,
     remotes = nothing,
-    format = Documenter.HTML(edit_link = nothing, repolink = nothing, inventory_version = "0.1.0"),
+    format = Documenter.HTML(
+        edit_link = nothing,
+        repolink = nothing,
+        inventory_version = "0.1.0",
+        assets = ["assets/custom.css"],
+    ),
     plugins = [LandingPage()],
     pages = [
         "Home" => "index.md",

@@ -1,0 +1,23 @@
+/* Fixture stylesheet for the docsite: stands in for a user's own stylesheet
+ * and demonstrates overriding one of the plugin's shipped defaults. The
+ * plugin ships a theme-derived gradient name and glow by default (see its
+ * --landing-name-*-default / --landing-glow-default variables); this file
+ * overrides only the name gradient — with the Julia colors — and lets the
+ * glow keep the theme's default, proving user overrides win regardless of
+ * stylesheet load order. */
+:root {
+    /* Set both name variables together: the color unhides the gradient, the
+     * background paints it. The middle stop keeps the transition saturated
+     * (browsers interpolate gradients in sRGB, where distant hues blend
+     * through desaturated grays; a stop on the hue arc between the two, at
+     * about the endpoints' chroma, stays vivid across the whole name). */
+    --landing-name-color: transparent;
+    --landing-name-background: linear-gradient(120deg, #9558b2 30%, #b8418f 65%, #cb3c33);
+}
+
+/* Per-theme variants use the same selectors the plugin's palette uses. The
+ * dark name gradient runs Julia purple -> blue -> green: three saturated
+ * brand colors, so no blend zone ever desaturates. */
+html.theme--documenter-dark {
+    --landing-name-background: linear-gradient(120deg, #9558b2 15%, #4063d8 52%, #389826 90%);
+}
