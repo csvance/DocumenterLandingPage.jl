@@ -4,7 +4,10 @@
 # describes (hero block + features block), with class names the bundled
 # stylesheet styles. Only the parts present in the YAML are emitted: a hero
 # without an image renders no image column, a hero without actions renders no
-# button row, a feature without a link renders as a plain tile.
+# button row, a feature without a link renders as a plain tile. A feature's
+# icon may be an emoji (or any text, escaped) or an image, with optional
+# light/dark theme variants and optional badge wrapping, mirroring
+# VitePress's `FeatureIcon` forms.
 
 # Escape text going into HTML so YAML copy cannot break the markup.
 function _esc(s::AbstractString)
@@ -76,11 +79,73 @@ function _render_actions(actions, doc, page)
     return join(parts, "\n      ")
 end
 
+# Join a list of CSS classes into an HTML class attribute, or "" for none.
+function _img_tag(classes, src, alt, width, height)
+    cls = isempty(classes) ? "" : " class=\"$(join(classes, " "))\""
+    return "<img$(cls) src=\"$(src)\" alt=\"$(alt)\" width=\"$(width)\" height=\"$(height)\">"
+end
+
+# Render a feature tile's icon markup.
+#
+# `icon` accepts the VitePress `FeatureIcon` forms:
+#   - a string (emoji is the normal case), or an absent icon: escaped text in
+#     the badge box, exactly as the icon has always rendered;
+#   - a mapping with `src`: an <img> icon; `wrap: true` puts it in the badge
+#     box, otherwise (the default) it renders directly as a tile child;
+#   - a mapping with `light`/`dark`: per-theme variants emitted as two <img>s
+#     carrying Documenter's shipped .docs-light-only/.docs-dark-only classes,
+#     the same mechanism the hero `image.dark` uses. A `src` alongside
+#     light/dark wins, mirroring VitePress.
+#
+# Image paths resolve through _resolve_href, so a root-relative `/icon.svg`
+# remaps into the site's assets/ directory like the hero image. `width` and
+# `height` default to 48, `alt` to an empty string. A mapping with none of
+# src/light/dark emits no icon markup at all.
+function _render_feature_icon(icon, doc, page)
+    if icon isa AbstractDict
+        src = get(icon, "src", "")
+        light = get(icon, "light", "")
+        dark = get(icon, "dark", "")
+        if isempty(src) && isempty(light) && isempty(dark)
+            return ""
+        end
+        alt = _esc(get(icon, "alt", ""))
+        width = get(icon, "width", 48)
+        height = get(icon, "height", 48)
+        wrap = get(icon, "wrap", false) == true
+        # Unwrapped images render directly as tile children; the class
+        # constrains oversized images (see landing.css). Wrapped ones ride the
+        # badge box's own constraint instead.
+        outer = wrap ? String[] : String["landing-feature__icon-img"]
+        if !isempty(src)
+            s = _esc(_resolve_href(doc, page, src))
+            imgs = [_img_tag(outer, s, alt, width, height)]
+        else
+            # Emit only the variants present, each hidden by the theme CSS
+            # when it does not apply.
+            imgs = String[]
+            if !isempty(light)
+                l = _esc(_resolve_href(doc, page, light))
+                push!(imgs, _img_tag(["docs-light-only"; outer], l, alt, width, height))
+            end
+            if !isempty(dark)
+                d = _esc(_resolve_href(doc, page, dark))
+                push!(imgs, _img_tag(["docs-dark-only"; outer], d, alt, width, height))
+            end
+        end
+        if wrap
+            return "<div class=\"landing-feature__icon\">\n$(join(imgs, "\n"))\n</div>"
+        end
+        return join(imgs, "\n")
+    end
+    return "<div class=\"landing-feature__icon\">$(_esc(string(icon)))</div>"
+end
+
 function _render_feature(feature, doc, page)
-    icon = _esc(get(feature, "icon", ""))
+    icon = _render_feature_icon(get(feature, "icon", ""), doc, page)
     title = _esc(get(feature, "title", ""))
     details = _esc(get(feature, "details", ""))
-    inner = "<div class=\"landing-feature__icon\">$(icon)</div>\n" *
+    inner = "$(icon)\n" *
         "<h2 class=\"landing-feature__title\">$(title)</h2>\n" *
         "<p class=\"landing-feature__details\">$(details)</p>"
     link = get(feature, "link", "")

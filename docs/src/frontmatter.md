@@ -26,10 +26,16 @@ hero:
     dark: /logo-dark.svg      # optional variant for dark themes
 
 features:
-  - icon: ⚡                   # emoji shown at the top of the tile
+  - icon: ⚡                   # emoji shown in the tile's badge box
     title: A capability       # tile heading
     details: One sentence.    # tile body (plain text)
     link: /page               # optional: makes the whole tile a link
+  - icon:
+      src: /icon.svg          # or an image icon from src/assets/
+      alt: Package icon       #   accessibility text
+      wrap: true              #   optional: show it in the badge box
+    title: Another capability
+    details: One sentence.
 ---
 ```
 ````
@@ -111,7 +117,9 @@ The hero image renders at a fixed 320 by 320 size.
 Each entry in `features` is one tile with four keys:
 
 `icon`
-: Optional. An emoji shown above the tile title. Defaults to empty.
+: Optional. An emoji (or any text) shown in a small badge box above the tile
+  title — or an image, for a real graphic instead of an emoji. Defaults to
+  empty. See [Icons](#Icons).
 
 `title`
 : Optional. The tile heading. Defaults to empty.
@@ -126,6 +134,68 @@ Each entry in `features` is one tile with four keys:
   destination. When absent, the tile renders as a plain, non-interactive
   block. See [Link resolution](#Link-resolution).
 
+## Icons
+
+`icon` accepts two forms, mirroring VitePress's `FeatureIcon`:
+
+**A string** — rendered as escaped text in the 48 by 48 badge box. An emoji is
+the normal case:
+
+````markdown
+```@raw html
+features:
+  - icon: ⚡
+    title: A capability
+    details: One sentence.
+```
+````
+
+**A mapping** — an image icon (SVG, PNG, ...). The image file goes in
+`src/assets/` exactly like the hero image, and is referenced root-relative;
+the path resolves through the same [Link resolution](#Link-resolution) rules.
+
+`src`
+: The image file. When present, it is used even if `light`/`dark` are also
+  given.
+
+`light` / `dark`
+: Per-theme image variants, used when `src` is absent. The plugin emits each
+  present variant with Documenter's shipped `.docs-light-only` /
+  `.docs-dark-only` classes, so every theme shows its own image — the same
+  mechanism the hero's [`image.dark`](#Image) uses.
+
+`alt`
+: Optional. Accessibility text for the image. Defaults to empty.
+
+`width` / `height`
+: Optional. The image's intrinsic size, emitted as `width`/`height`
+  attributes. Both default to 48; give real images their actual dimensions.
+
+`wrap`
+: Optional. Boolean, defaulting to `false`. When `true`, the image renders
+  inside the same badge box a string icon uses; when `false` (the default),
+  the image renders directly above the tile title with no badge.
+
+A mapping with none of `src`, `light`, or `dark` renders no icon markup at
+all:
+
+````markdown
+```@raw html
+features:
+  - icon:
+      src: /icon.svg
+      alt: Package icon
+    title: An image icon
+    details: One sentence.
+  - icon:
+      light: /icon-light.svg
+      dark: /icon-dark.svg
+      wrap: true
+    title: Wrapped, per theme
+    details: One sentence.
+```
+````
+
 ## Conditional rendering
 
 Only the parts present in the YAML are emitted, so the page adapts to what
@@ -134,6 +204,7 @@ you write:
 - no `hero.image` (or an empty `src`): no image column;
 - no `hero.actions` (or an empty list): no button row;
 - a feature without `link`: a plain tile;
+- a feature `icon` mapping without `src`/`light`/`dark`: no icon markup;
 - a `hero` subkey that is empty: that element is omitted.
 
 The frontmatter block itself stays byte-for-byte as written in your source;

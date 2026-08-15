@@ -46,6 +46,12 @@ features:
     title: Hot reload
     details: In dynamic mode the server watches the model repository and reloads bundles online, with no restart.
     link: /bundles/
+  - icon:
+      src: /logo.svg
+      alt: ReactantServer.jl
+    title: Custom tile icons
+    details: Tile icons are emoji or image assets from src/assets/, rendered directly or in the badge box.
+    link: /bundles/
 ---
 ```
 

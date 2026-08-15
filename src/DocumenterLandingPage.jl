@@ -11,9 +11,9 @@ export LandingPage
 """
     LandingPage()
 
-Documenter plugin that renders a VitePress-style landing page (hero and emoji
-feature tiles) from the YAML frontmatter block a page carries in a `@raw html`
-directive:
+Documenter plugin that renders a VitePress-style landing page (hero and
+feature tiles with emoji or image icons) from the YAML frontmatter block a
+page carries in a `@raw html` directive:
 
 ````markdown
 ```@raw html
@@ -44,7 +44,9 @@ features:
 
 The frontmatter is exactly the VitePress home layout: a `hero` block (name,
 text, tagline, actions, image) and a `features` block (icon, title, details,
-link per tile). An optional `image.dark` gives the hero a second image for
+link per tile). A tile's icon may be an emoji string or an image mapping
+(`src`, or `light`/`dark` theme variants, with an optional badge `wrap`).
+An optional `image.dark` gives the hero a second image for
 dark themes: the plugin emits both variants with Documenter's own
 `.docs-light-only`/`.docs-dark-only` classes, which every shipped theme
 stylesheet compiles to show one or the other (the same mechanism

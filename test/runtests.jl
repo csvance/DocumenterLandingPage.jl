@@ -12,14 +12,21 @@ const DLP = DocumenterLandingPage
 # docsite fixture.
 function _assert_landing(index::AbstractString)
     @test occursin("id=\"landing\"", index)
-    # All six feature tiles, in order, with their emoji icons.
-    @test count("class=\"landing-feature\"", index) == 6
+    # All seven feature tiles, in order: six with emoji icons and one with an
+    # image icon.
+    @test count("class=\"landing-feature\"", index) == 7
     for emoji in ["⚡", "🚀", "🧩", "💾", "🔀", "🔁"]
         @test occursin(emoji, index)
     end
+    # The image-icon tile renders a resolved <img> (assets/ remap, 48x48).
+    @test occursin(
+        "<img class=\"landing-feature__icon-img\" src=\"assets/logo.svg\" alt=\"ReactantServer.jl\" width=\"48\" height=\"48\">",
+        index,
+    )
     for title in [
             "KServe V2, natively", "XLA under the hood", "Julia-first",
             "On-demand weights", "A coalescing scheduler", "Hot reload",
+            "Custom tile icons",
         ]
         @test occursin(title, index)
     end
@@ -97,6 +104,73 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         @test !occursin("docs-dark-only", html2)
         @test count("<img ", html2) == 1
         @test occursin("src=\"assets/logo.svg\"", html2)
+    end
+
+    @testset "image feature icons" begin
+        # `icon` accepts VitePress's `FeatureIcon` object forms: an image
+        # (`src`), per-theme variants (`light`/`dark`), an optional badge
+        # wrap, and explicit width/height (default 48). Icon paths resolve
+        # through the same assets/ remap as the hero image, and a string icon
+        # (emoji) still renders the badge div byte-for-byte as before.
+        docsite = joinpath(@__DIR__, "docsite")
+        doc = (user = (root = docsite, source = "src", build = "build"),)
+        page = (build = "build/index.html",)
+        tile(icon) = DLP._render_feature(merge(Dict{Any, Any}("title" => "T"), Dict{Any, Any}("icon" => icon)), doc, page)
+
+        # A string icon is unchanged: escaped text in the badge div.
+        html = tile("⚡")
+        @test occursin("<div class=\"landing-feature__icon\">⚡</div>", html)
+        # An absent icon still renders the (empty) badge div.
+        html = DLP._render_feature(Dict{Any, Any}("title" => "T"), doc, page)
+        @test occursin("<div class=\"landing-feature__icon\"></div>", html)
+
+        # `src` renders an image icon directly as a tile child (no badge),
+        # resolved through the assets/ remap with 48x48 default sizing.
+        html = tile(Dict{Any, Any}("src" => "/logo.svg", "alt" => "Logo"))
+        @test occursin(
+            "<img class=\"landing-feature__icon-img\" src=\"assets/logo.svg\" alt=\"Logo\" width=\"48\" height=\"48\">",
+            html,
+        )
+        @test !occursin("<div class=\"landing-feature__icon\">", html)
+
+        # `wrap: true` puts the image inside the badge box.
+        html = tile(Dict{Any, Any}("src" => "/logo.svg", "alt" => "Logo", "wrap" => true))
+        @test occursin(
+            "<div class=\"landing-feature__icon\">\n"
+            * "<img src=\"assets/logo.svg\" alt=\"Logo\" width=\"48\" height=\"48\">\n"
+            * "</div>",
+            html,
+        )
+
+        # `light`/`dark` emit both variants with Documenter's theme classes.
+        html = tile(Dict{Any, Any}("light" => "/logo.svg", "dark" => "/logo-dark.svg", "alt" => "L"))
+        @test occursin(
+            "<img class=\"docs-light-only landing-feature__icon-img\" src=\"assets/logo.svg\" alt=\"L\" width=\"48\" height=\"48\">",
+            html,
+        )
+        @test occursin(
+            "<img class=\"docs-dark-only landing-feature__icon-img\" src=\"logo-dark.svg\" alt=\"L\" width=\"48\" height=\"48\">",
+            html,
+        )
+
+        # Wrapped variants keep the theme classes but no icon-img class.
+        html = tile(Dict{Any, Any}("light" => "/logo.svg", "dark" => "/logo-dark.svg", "wrap" => true))
+        @test occursin(
+            "<div class=\"landing-feature__icon\">\n"
+            * "<img class=\"docs-light-only\" src=\"assets/logo.svg\" alt=\"\" width=\"48\" height=\"48\">\n"
+            * "<img class=\"docs-dark-only\" src=\"logo-dark.svg\" alt=\"\" width=\"48\" height=\"48\">\n"
+            * "</div>",
+            html,
+        )
+
+        # Explicit width/height are honored.
+        html = tile(Dict{Any, Any}("src" => "/logo.svg", "width" => 64, "height" => 32))
+        @test occursin("width=\"64\" height=\"32\"", html)
+
+        # A mapping with no image target emits no icon markup at all.
+        html = tile(Dict{Any, Any}("alt" => "x"))
+        @test !occursin("<img", html)
+        @test !occursin("landing-feature__icon", html)
     end
 
     @testset "both plugins compose (LandingPage + CodeBlocks)" begin

@@ -5,7 +5,7 @@ layout: home
 hero:
   name: DocumenterLandingPage.jl
   text: A VitePress-style landing page for Documenter.jl
-  tagline: Render a hero and emoji feature tiles from YAML frontmatter, theme-adaptive across all of Documenter's shipped themes.
+  tagline: Render a hero and feature tiles with emoji or image icons from YAML frontmatter, theme-adaptive across all of Documenter's shipped themes.
   actions:
     - theme: brand
       text: Get started
@@ -21,11 +21,13 @@ hero:
 features:
   - icon: 📄
     title: YAML frontmatter
-    details: The exact VitePress home layout, with hero, actions, and emoji feature tiles, all from one YAML frontmatter block.
+    details: The exact VitePress home layout, with hero, actions, and feature tiles with emoji or image icons, all from one YAML frontmatter block.
   - icon: 🎨
     title: Theme-adaptive
     details: Mirrors Documenter's own theme palette, so the landing follows light, dark, and every catppuccin flavor.
-  - icon: 🧩
+  - icon:
+      src: /logo.svg
+      alt: DocumenterLandingPage.jl
     title: Documenter plugin
     details: Add it to your plugins list, and the stylesheet is injected automatically, no assets to configure.
   - icon: 🤝

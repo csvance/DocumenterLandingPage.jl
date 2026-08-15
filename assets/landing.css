@@ -9,7 +9,7 @@
  * own. Values are transcribed from Documenter's theme SCSS:
  *
  *   - `--landing-surface`:   `$background`       (tiles, alt buttons)
- *   - `--landing-surface-2`: one step further     (emoji badges)
+ *   - `--landing-surface-2`: one step further     (icon badges)
  *   - `--landing-border`:    a step between       (tile borders)
  *   - `--landing-accent`:    `$link`              (name, brand button)
  *   - `--landing-accent-contrast`: text on the brand button
@@ -214,6 +214,17 @@ body:has(#landing) #documenter .docs-main > article {
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
+}
+/* A wrapped image icon fills the badge box; cap it so an oversized
+ * width/height cannot overflow the box. An unwrapped image icon renders
+ * directly as a tile child; cap it at the tile width so a large asset never
+ * overruns the column. */
+#landing .landing-feature__icon img {
+    max-width: 100%;
+    max-height: 100%;
+}
+#landing .landing-feature__icon-img {
+    max-width: 100%;
 }
 #landing .landing-feature__title {
     margin: 0;

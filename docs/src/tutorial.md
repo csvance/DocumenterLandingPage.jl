@@ -2,7 +2,8 @@
 
 This page walks through a complete end to end use of DocumenterLandingPage:
 add the package, drop a VitePress-style frontmatter block into a page, pass
-the plugin to `makedocs`, and watch it render a hero and emoji feature tiles.
+the plugin to `makedocs`, and watch it render a hero and feature tiles with
+emoji or image icons.
 
 ## 1. Add the package
 
@@ -51,9 +52,19 @@ features:
   - icon: 🧩
     title: A third capability
     details: One sentence about it.
+  - icon:
+      src: /icon.svg
+      alt: Package icon
+    title: An image icon
+    details: One sentence about it.
 ---
 ```
 ````
+
+The last tile shows the other icon form: an image file from your
+`src/assets/` directory, referenced root-relative like any other asset. The
+[frontmatter reference](frontmatter.md) covers the full icon options,
+including per-theme variants and badge wrapping.
 
 Two things matter here:
 
@@ -120,14 +131,20 @@ The plugin turns the frontmatter into the hero and feature tile markup. The
       <h2 class="landing-feature__title">A capability</h2>
       <p class="landing-feature__details">One sentence about it.</p>
     </div>
+    <div class="landing-feature">
+      <img class="landing-feature__icon-img" src="assets/icon.svg" alt="Package icon" width="48" height="48">
+      <h2 class="landing-feature__title">An image icon</h2>
+      <p class="landing-feature__details">One sentence about it.</p>
+    </div>
   </section>
 </div>
 ```
 
 Notice what the resolver did with the links: the external GitHub URL passed
 through as written, and the root-relative `/tutorial/` was turned into the
-page-relative `tutorial/` that points at the built page. A bare filename such
-as `/logo.svg` would instead be remapped into the site's `assets/` directory.
+page-relative `tutorial/` that points at the built page. The image icon's
+`/icon.svg` was remapped into the site's `assets/` directory, just like a hero
+image would be.
 The [frontmatter reference](frontmatter.md) explains the exact rules.
 
 The landing follows the visitor's theme automatically: it uses CSS custom
