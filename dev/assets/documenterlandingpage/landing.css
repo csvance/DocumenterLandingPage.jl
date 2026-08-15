@@ -21,11 +21,11 @@
  *   - `--landing-glow-default`: the shipped per-theme glow disc — the
  *                            accent and its hue-wheel neighbor split hard
  *                            (VitePress's canonical glow shape), stops
- *                            translucent so the halo reads soft over any
- *                            page background (~0.5 alpha in the light
- *                            themes, ~0.6 in the dark ones — stronger on
- *                            dark, where the background offers less
- *                            contrast against the glow)
+ *                            translucent at ~0.5 alpha in every theme so
+ *                            the halo reads soft over the page — the same
+ *                            stops read stronger on dark themes, where the
+ *                            dark background preserves the accent's chroma
+ *                            instead of washing it toward white
  *
  * User overrides (never defined here, so a user stylesheet wins regardless
  * of load order — the same contract VitePress's --vp-home-hero-* variables
@@ -67,7 +67,7 @@ html.theme--documenter-dark {
     --landing-accent: #1abc9c;
     --landing-accent-contrast: #00332a;
     --landing-name-background-default: linear-gradient(120deg, #1abc9c, #00b7ce 50%, #51aaee);
-    --landing-glow-default: linear-gradient(-45deg, #1abc9c99 50%, #38aee799 50%);
+    --landing-glow-default: linear-gradient(-45deg, #1abc9c80 50%, #38aee780 50%);
 }
 
 html.theme--catppuccin-latte {
@@ -87,7 +87,7 @@ html.theme--catppuccin-frappe {
     --landing-accent: #8caaee;
     --landing-accent-contrast: #303446;
     --landing-name-background-default: linear-gradient(120deg, #8caaee, #b69ce3 50%, #d592c5);
-    --landing-glow-default: linear-gradient(-45deg, #8caaee99 50%, #ce94cf99 50%);
+    --landing-glow-default: linear-gradient(-45deg, #8caaee80 50%, #ce94cf80 50%);
 }
 
 html.theme--catppuccin-macchiato {
@@ -97,7 +97,7 @@ html.theme--catppuccin-macchiato {
     --landing-accent: #8aadf4;
     --landing-accent-contrast: #24273a;
     --landing-name-background-default: linear-gradient(120deg, #8aadf4, #b79eea 50%, #d893cb);
-    --landing-glow-default: linear-gradient(-45deg, #8aadf499 50%, #d096d699 50%);
+    --landing-glow-default: linear-gradient(-45deg, #8aadf480 50%, #d096d680 50%);
 }
 
 html.theme--catppuccin-mocha {
@@ -107,7 +107,7 @@ html.theme--catppuccin-mocha {
     --landing-accent: #89b4fa;
     --landing-accent-contrast: #1e1e2e;
     --landing-name-background-default: linear-gradient(120deg, #89b4fa, #b8a5f3 50%, #db99d5);
-    --landing-glow-default: linear-gradient(-45deg, #89b4fa99 50%, #d39cdf99 50%);
+    --landing-glow-default: linear-gradient(-45deg, #89b4fa80 50%, #d39cdf80 50%);
 }
 
 /* The landing page spans the same content width as a VitePress home layout
@@ -308,9 +308,10 @@ body:has(#landing) #documenter .docs-main > article {
 }
 /* Glow behind the logo, in the theme's accent hue: a translucent accent
  * disc as wide as the box itself (see the --landing-glow-default stops in
- * the palette blocks above — ~0.5 alpha in light themes, ~0.6 in dark),
- * its soft falloff provided by the 40px blur over the page background (a
- * pre-faded radial gradient on top of a blur reads dim and small).
+ * the palette blocks above — ~0.5 alpha in every theme, reading stronger
+ * on dark where the background preserves the chroma), its soft falloff
+ * provided by the 40px blur over the page background (a pre-faded radial
+ * gradient on top of a blur reads dim and small).
  * The halo is meant to spill past the box over whatever surrounds the hero
  * — column gutters, padding, the page background — the way VitePress's own
  * home hero glow does: nothing between here and the viewport clips
