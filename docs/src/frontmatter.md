@@ -173,7 +173,8 @@ the path resolves through the same [Link resolution](#Link-resolution) rules.
 
 `wrap`
 : Optional. Boolean, defaulting to `false`. When `true`, the image renders
-  inside the same badge box a string icon uses; when `false` (the default),
+  inside the same badge box a string icon uses, capped at 80% of the box so
+  even a square icon keeps some breathing room; when `false` (the default),
   the image renders directly above the tile title with no badge.
 
 A mapping with none of `src`, `light`, or `dark` renders no icon markup at

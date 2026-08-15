@@ -52,6 +52,27 @@ features:
     title: Custom tile icons
     details: Tile icons are emoji or image assets from src/assets/, rendered directly or in the badge box.
     link: /bundles/
+  - icon:
+      src: /logo.svg
+      alt: ReactantServer.jl
+      wrap: true
+    title: A wrapped image icon
+    details: The same asset, this time wrapped in the badge box to match the emoji tiles.
+    link: /bundles/
+  - icon:
+      src: /icon-chip.svg
+      alt: Chip icon
+      wrap: true
+    title: Device agnostic
+    details: The same bundle runs on CUDA today and on CPU for development, because XLA compiles per device.
+    link: /tutorial/
+  - icon:
+      src: /icon-bolt.svg
+      alt: Bolt icon
+      wrap: true
+    title: Low-latency inference
+    details: Requests coalesce into compiled batch executions, so one card serves many models at once.
+    link: /scheduling/
 ---
 ```
 

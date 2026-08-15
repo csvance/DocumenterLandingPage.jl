@@ -12,21 +12,32 @@ const DLP = DocumenterLandingPage
 # docsite fixture.
 function _assert_landing(index::AbstractString)
     @test occursin("id=\"landing\"", index)
-    # All seven feature tiles, in order: six with emoji icons and one with an
-    # image icon.
-    @test count("class=\"landing-feature\"", index) == 7
+    # All ten feature tiles, in order: six with emoji icons, one bare image
+    # icon, and three wrapped image icons (the wide logo plus two 1:1 SVGs).
+    @test count("class=\"landing-feature\"", index) == 10
     for emoji in ["⚡", "🚀", "🧩", "💾", "🔀", "🔁"]
         @test occursin(emoji, index)
     end
-    # The image-icon tile renders a resolved <img> (assets/ remap, 48x48).
+    # The image-icon tiles render resolved <img>s (assets/ remap, 48x48): the
+    # bare one directly as a tile child, the wrapped ones inside the badge box.
     @test occursin(
         "<img class=\"landing-feature__icon-img\" src=\"assets/logo.svg\" alt=\"ReactantServer.jl\" width=\"48\" height=\"48\">",
         index,
     )
+    @test occursin(
+        "<div class=\"landing-feature__icon\">\n"
+            * "<img src=\"assets/logo.svg\" alt=\"ReactantServer.jl\" width=\"48\" height=\"48\">\n"
+            * "</div>",
+        index,
+    )
+    # The 1:1 SVG icons are wrapped too, resolved through the assets/ remap.
+    @test occursin("<img src=\"assets/icon-chip.svg\" alt=\"Chip icon\" width=\"48\" height=\"48\">", index)
+    @test occursin("<img src=\"assets/icon-bolt.svg\" alt=\"Bolt icon\" width=\"48\" height=\"48\">", index)
     for title in [
             "KServe V2, natively", "XLA under the hood", "Julia-first",
             "On-demand weights", "A coalescing scheduler", "Hot reload",
-            "Custom tile icons",
+            "Custom tile icons", "A wrapped image icon", "Device agnostic",
+            "Low-latency inference",
         ]
         @test occursin(title, index)
     end
@@ -137,8 +148,8 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         html = tile(Dict{Any, Any}("src" => "/logo.svg", "alt" => "Logo", "wrap" => true))
         @test occursin(
             "<div class=\"landing-feature__icon\">\n"
-            * "<img src=\"assets/logo.svg\" alt=\"Logo\" width=\"48\" height=\"48\">\n"
-            * "</div>",
+                * "<img src=\"assets/logo.svg\" alt=\"Logo\" width=\"48\" height=\"48\">\n"
+                * "</div>",
             html,
         )
 
@@ -157,9 +168,9 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         html = tile(Dict{Any, Any}("light" => "/logo.svg", "dark" => "/logo-dark.svg", "wrap" => true))
         @test occursin(
             "<div class=\"landing-feature__icon\">\n"
-            * "<img class=\"docs-light-only\" src=\"assets/logo.svg\" alt=\"\" width=\"48\" height=\"48\">\n"
-            * "<img class=\"docs-dark-only\" src=\"logo-dark.svg\" alt=\"\" width=\"48\" height=\"48\">\n"
-            * "</div>",
+                * "<img class=\"docs-light-only\" src=\"assets/logo.svg\" alt=\"\" width=\"48\" height=\"48\">\n"
+                * "<img class=\"docs-dark-only\" src=\"logo-dark.svg\" alt=\"\" width=\"48\" height=\"48\">\n"
+                * "</div>",
             html,
         )
 
