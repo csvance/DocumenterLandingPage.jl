@@ -5,6 +5,12 @@ carries in a `@raw html` directive. This page is the authoritative reference
 for that schema: every key, what it does, which parts are optional, and how
 the plugin renders it. It mirrors the VitePress home layout.
 
+Styling is not part of the frontmatter: colors and gradients come from the
+plugin's shipped stylesheet through CSS custom properties, and there are no
+frontmatter keys for them. See [Styling: gradients and themes](styling.md)
+for the gradient defaults, how they tie into Documenter's themes, and how to
+customize them.
+
 The complete shape, with every optional part included:
 
 ````markdown

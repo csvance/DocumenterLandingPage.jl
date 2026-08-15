@@ -19,6 +19,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Tutorial" => "tutorial.md",
+        "Styling" => "styling.md",
         "Frontmatter reference" => "frontmatter.md",
         "API Reference" => "api.md",
     ],

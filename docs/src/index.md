@@ -62,3 +62,6 @@ makedocs(
 ```
 
 See the [API reference](api.md) for the plugin's documentation.
+
+See [Styling: gradients and themes](styling.md) for how the landing's
+default gradients work with Documenter's themes and how to customize them.

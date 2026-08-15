@@ -63,6 +63,16 @@ the visitor's theme (OS preference on first visit, the theme picker
 afterwards) with no custom palette of its own. The landing components
 consume only those variables.
 
+Gradient styling ships on by default, derived from each theme's accent: an
+opaque gradient package name and a translucent accent-hue glow behind the
+logo, with per-theme defaults for all six themes. Everything is overridable
+through CSS custom properties declared in your own `assets=` stylesheet,
+which wins regardless of load order: `--landing-name-color` and
+`--landing-name-background` (set them together) for the name,
+`--landing-glow` and `--landing-glow-filter` for the glow. See the
+[styling reference](styling.md) for the per-theme defaults and the complete
+customization guide.
+
 Pass to `makedocs(plugins = [LandingPage()])`.
 """
 struct LandingPage <: Documenter.Plugin end

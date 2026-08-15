@@ -22,8 +22,8 @@
  *                            accent and its hue-wheel neighbor split hard
  *                            (VitePress's canonical glow shape), stops
  *                            translucent so the halo reads soft over any
- *                            page background (~0.6 alpha in the light
- *                            themes, ~0.7 in the dark ones — stronger on
+ *                            page background (~0.5 alpha in the light
+ *                            themes, ~0.6 in the dark ones — stronger on
  *                            dark, where the background offers less
  *                            contrast against the glow)
  *
@@ -57,7 +57,7 @@
      * soft over the page instead of reading as a solid paint. */
     --landing-name-color-default: transparent;
     --landing-name-background-default: linear-gradient(120deg, #2e63b8, #6d51b0 50%, #92418e);
-    --landing-glow-default: linear-gradient(-45deg, #2e63b899 50%, #89459999 50%);
+    --landing-glow-default: linear-gradient(-45deg, #2e63b880 50%, #89459980 50%);
 }
 
 html.theme--documenter-dark {
@@ -67,7 +67,7 @@ html.theme--documenter-dark {
     --landing-accent: #1abc9c;
     --landing-accent-contrast: #00332a;
     --landing-name-background-default: linear-gradient(120deg, #1abc9c, #00b7ce 50%, #51aaee);
-    --landing-glow-default: linear-gradient(-45deg, #1abc9cb3 50%, #38aee7b3 50%);
+    --landing-glow-default: linear-gradient(-45deg, #1abc9c99 50%, #38aee799 50%);
 }
 
 html.theme--catppuccin-latte {
@@ -77,7 +77,7 @@ html.theme--catppuccin-latte {
     --landing-accent: #1e66f5;
     --landing-accent-contrast: #fff;
     --landing-name-background-default: linear-gradient(120deg, #1e66f5, #8646e4 50%, #b927ad);
-    --landing-glow-default: linear-gradient(-45deg, #1e66f599 50%, #ad30c099 50%);
+    --landing-glow-default: linear-gradient(-45deg, #1e66f580 50%, #ad30c080 50%);
 }
 
 html.theme--catppuccin-frappe {
@@ -87,7 +87,7 @@ html.theme--catppuccin-frappe {
     --landing-accent: #8caaee;
     --landing-accent-contrast: #303446;
     --landing-name-background-default: linear-gradient(120deg, #8caaee, #b69ce3 50%, #d592c5);
-    --landing-glow-default: linear-gradient(-45deg, #8caaeeb3 50%, #ce94cfb3 50%);
+    --landing-glow-default: linear-gradient(-45deg, #8caaee99 50%, #ce94cf99 50%);
 }
 
 html.theme--catppuccin-macchiato {
@@ -97,7 +97,7 @@ html.theme--catppuccin-macchiato {
     --landing-accent: #8aadf4;
     --landing-accent-contrast: #24273a;
     --landing-name-background-default: linear-gradient(120deg, #8aadf4, #b79eea 50%, #d893cb);
-    --landing-glow-default: linear-gradient(-45deg, #8aadf4b3 50%, #d096d6b3 50%);
+    --landing-glow-default: linear-gradient(-45deg, #8aadf499 50%, #d096d699 50%);
 }
 
 html.theme--catppuccin-mocha {
@@ -107,7 +107,7 @@ html.theme--catppuccin-mocha {
     --landing-accent: #89b4fa;
     --landing-accent-contrast: #1e1e2e;
     --landing-name-background-default: linear-gradient(120deg, #89b4fa, #b8a5f3 50%, #db99d5);
-    --landing-glow-default: linear-gradient(-45deg, #89b4fab3 50%, #d39cdfb3 50%);
+    --landing-glow-default: linear-gradient(-45deg, #89b4fa99 50%, #d39cdf99 50%);
 }
 
 /* The landing page spans the same content width as a VitePress home layout
@@ -308,7 +308,7 @@ body:has(#landing) #documenter .docs-main > article {
 }
 /* Glow behind the logo, in the theme's accent hue: a translucent accent
  * disc as wide as the box itself (see the --landing-glow-default stops in
- * the palette blocks above — ~0.6 alpha in light themes, ~0.7 in dark),
+ * the palette blocks above — ~0.5 alpha in light themes, ~0.6 in dark),
  * its soft falloff provided by the 40px blur over the page background (a
  * pre-faded radial gradient on top of a blur reads dim and small).
  * The halo is meant to spill past the box over whatever surrounds the hero
