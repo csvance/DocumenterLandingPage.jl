@@ -20,7 +20,12 @@
  *                            never desaturates)
  *   - `--landing-glow-default`: the shipped per-theme glow disc — the
  *                            accent and its hue-wheel neighbor split hard
- *                            (VitePress's canonical glow shape)
+ *                            (VitePress's canonical glow shape), stops
+ *                            translucent so the halo reads soft over any
+ *                            page background (~0.6 alpha in the light
+ *                            themes, ~0.7 in the dark ones — stronger on
+ *                            dark, where the background offers less
+ *                            contrast against the glow)
  *
  * User overrides (never defined here, so a user stylesheet wins regardless
  * of load order — the same contract VitePress's --vp-home-hero-* variables
@@ -46,10 +51,13 @@
     --landing-accent-contrast: #fff;
     /* Default gradients: the theme accent rotating ~70° along the OKLCH hue
      * wheel (name) and its ~60° neighbor (glow), every stop held at the
-     * accent's own chroma so the sRGB blend never passes through gray. */
+     * accent's own chroma so the sRGB blend never passes through gray. The
+     * name gradient is fully opaque; the glow stops carry alpha (see the
+     * --landing-glow-default notes in the header) so the blurred halo stays
+     * soft over the page instead of reading as a solid paint. */
     --landing-name-color-default: transparent;
     --landing-name-background-default: linear-gradient(120deg, #2e63b8, #6d51b0 50%, #92418e);
-    --landing-glow-default: linear-gradient(-45deg, #2e63b8 50%, #894599 50%);
+    --landing-glow-default: linear-gradient(-45deg, #2e63b899 50%, #89459999 50%);
 }
 
 html.theme--documenter-dark {
@@ -59,7 +67,7 @@ html.theme--documenter-dark {
     --landing-accent: #1abc9c;
     --landing-accent-contrast: #00332a;
     --landing-name-background-default: linear-gradient(120deg, #1abc9c, #00b7ce 50%, #51aaee);
-    --landing-glow-default: linear-gradient(-45deg, #1abc9c 50%, #38aee7 50%);
+    --landing-glow-default: linear-gradient(-45deg, #1abc9cb3 50%, #38aee7b3 50%);
 }
 
 html.theme--catppuccin-latte {
@@ -69,7 +77,7 @@ html.theme--catppuccin-latte {
     --landing-accent: #1e66f5;
     --landing-accent-contrast: #fff;
     --landing-name-background-default: linear-gradient(120deg, #1e66f5, #8646e4 50%, #b927ad);
-    --landing-glow-default: linear-gradient(-45deg, #1e66f5 50%, #ad30c0 50%);
+    --landing-glow-default: linear-gradient(-45deg, #1e66f599 50%, #ad30c099 50%);
 }
 
 html.theme--catppuccin-frappe {
@@ -79,7 +87,7 @@ html.theme--catppuccin-frappe {
     --landing-accent: #8caaee;
     --landing-accent-contrast: #303446;
     --landing-name-background-default: linear-gradient(120deg, #8caaee, #b69ce3 50%, #d592c5);
-    --landing-glow-default: linear-gradient(-45deg, #8caaee 50%, #ce94cf 50%);
+    --landing-glow-default: linear-gradient(-45deg, #8caaeeb3 50%, #ce94cfb3 50%);
 }
 
 html.theme--catppuccin-macchiato {
@@ -89,7 +97,7 @@ html.theme--catppuccin-macchiato {
     --landing-accent: #8aadf4;
     --landing-accent-contrast: #24273a;
     --landing-name-background-default: linear-gradient(120deg, #8aadf4, #b79eea 50%, #d893cb);
-    --landing-glow-default: linear-gradient(-45deg, #8aadf4 50%, #d096d6 50%);
+    --landing-glow-default: linear-gradient(-45deg, #8aadf4b3 50%, #d096d6b3 50%);
 }
 
 html.theme--catppuccin-mocha {
@@ -99,7 +107,7 @@ html.theme--catppuccin-mocha {
     --landing-accent: #89b4fa;
     --landing-accent-contrast: #1e1e2e;
     --landing-name-background-default: linear-gradient(120deg, #89b4fa, #b8a5f3 50%, #db99d5);
-    --landing-glow-default: linear-gradient(-45deg, #89b4fa 50%, #d39cdf 50%);
+    --landing-glow-default: linear-gradient(-45deg, #89b4fab3 50%, #d39cdfb3 50%);
 }
 
 /* The landing page spans the same content width as a VitePress home layout
@@ -298,9 +306,11 @@ body:has(#landing) #documenter .docs-main > article {
     position: relative;
     z-index: 1;
 }
-/* Glow behind the logo, in the theme's accent hue: a solid accent disc as
- * wide as the box itself, its soft falloff provided entirely by the 40px
- * blur (a pre-faded radial gradient on top of a blur reads dim and small).
+/* Glow behind the logo, in the theme's accent hue: a translucent accent
+ * disc as wide as the box itself (see the --landing-glow-default stops in
+ * the palette blocks above — ~0.6 alpha in light themes, ~0.7 in dark),
+ * its soft falloff provided by the 40px blur over the page background (a
+ * pre-faded radial gradient on top of a blur reads dim and small).
  * The halo is meant to spill past the box over whatever surrounds the hero
  * — column gutters, padding, the page background — the way VitePress's own
  * home hero glow does: nothing between here and the viewport clips
