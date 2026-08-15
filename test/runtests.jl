@@ -52,8 +52,13 @@ function _assert_landing(index::AbstractString)
     @test occursin("href=\"on_demand_weights/\"", index)
     # External URLs pass through unchanged.
     @test occursin("href=\"https://github.com/EnzymeAD/ReactantServer.jl\"", index)
-    # The hero image resolves through the assets/ remap.
-    @test occursin("src=\"assets/logo.svg\"", index)
+    # The hero image resolves through the assets/ remap, inside the fixed
+    # square container the stylesheet sizes the logo and its glow in.
+    @test occursin(
+        "<div class=\"landing-hero__image-container\">\n" *
+            "      <img src=\"assets/logo.svg\"",
+        index,
+    )
     # The frontmatter itself is gone.
     @test !occursin("layout: home", index)
     return @test !occursin("---", index)

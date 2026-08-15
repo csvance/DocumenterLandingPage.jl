@@ -182,6 +182,13 @@ function _render_landing(data::AbstractDict, doc, page)
         alt = _esc(get(image, "alt", ""))
         dark = get(image, "dark", "")
         push!(parts, "  <div class=\"landing-hero__image\">")
+        # The logo rides in a fixed square box (mirroring VitePress's
+        # .image-container): the stylesheet sizes the box in absolute pixels
+        # per breakpoint and the logo and its glow disc proportionally inside
+        # it, so the glow can never be squashed, scaled, or clipped by the
+        # surrounding columns, whatever the viewport or the logo's aspect
+        # ratio does.
+        push!(parts, "    <div class=\"landing-hero__image-container\">")
         if !isempty(dark)
             # Optional `dark` variant for dark themes, swapped in by
             # Documenter's own theme CSS: every shipped theme stylesheet
@@ -189,11 +196,12 @@ function _render_landing(data::AbstractDict, doc, page)
             # `.docs-light-only { display: none }` (dark themes), the same
             # mechanism Documenter's sidebar logo uses.
             dark_src = _esc(_resolve_href(doc, page, dark))
-            push!(parts, "    <img class=\"docs-light-only\" src=\"$(src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
-            push!(parts, "    <img class=\"docs-dark-only\" src=\"$(dark_src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
+            push!(parts, "      <img class=\"docs-light-only\" src=\"$(src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
+            push!(parts, "      <img class=\"docs-dark-only\" src=\"$(dark_src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
         else
-            push!(parts, "    <img src=\"$(src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
+            push!(parts, "      <img src=\"$(src)\" alt=\"$(alt)\" width=\"320\" height=\"320\">")
         end
+        push!(parts, "    </div>")
         push!(parts, "  </div>")
     end
     push!(parts, "</header>")

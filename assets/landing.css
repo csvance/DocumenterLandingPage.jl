@@ -13,7 +13,7 @@
  *   - `--landing-border`:    a step between       (tile borders)
  *   - `--landing-accent`:    `$link`              (name, brand button)
  *   - `--landing-accent-contrast`: text on the brand button
- *   - `--landing-glow`:      the hero image's radial glow, in the accent hue
+ *   - `--landing-glow`:      the logo's blurred glow disc, accent hue (~45% alpha)
  *
  * Text and headings are deliberately left to inherit from the theme; nothing
  * here overrides Documenter's own chrome.
@@ -25,7 +25,7 @@
     --landing-border: #e0e0e0;
     --landing-accent: #2e63b8;
     --landing-accent-contrast: #fff;
-    --landing-glow: rgba(46, 99, 184, 0.30);
+    --landing-glow: rgba(46, 99, 184, 0.45);
 }
 
 html.theme--documenter-dark {
@@ -34,7 +34,7 @@ html.theme--documenter-dark {
     --landing-border: #343c3d;
     --landing-accent: #1abc9c;
     --landing-accent-contrast: #00332a;
-    --landing-glow: rgba(26, 188, 156, 0.30);
+    --landing-glow: rgba(26, 188, 156, 0.45);
 }
 
 html.theme--catppuccin-latte {
@@ -43,7 +43,7 @@ html.theme--catppuccin-latte {
     --landing-border: #ccd0da;
     --landing-accent: #1e66f5;
     --landing-accent-contrast: #fff;
-    --landing-glow: rgba(30, 102, 245, 0.28);
+    --landing-glow: rgba(30, 102, 245, 0.42);
 }
 
 html.theme--catppuccin-frappe {
@@ -52,7 +52,7 @@ html.theme--catppuccin-frappe {
     --landing-border: #414559;
     --landing-accent: #8caaee;
     --landing-accent-contrast: #303446;
-    --landing-glow: rgba(140, 170, 238, 0.28);
+    --landing-glow: rgba(140, 170, 238, 0.42);
 }
 
 html.theme--catppuccin-macchiato {
@@ -61,7 +61,7 @@ html.theme--catppuccin-macchiato {
     --landing-border: #363a4f;
     --landing-accent: #8aadf4;
     --landing-accent-contrast: #24273a;
-    --landing-glow: rgba(138, 173, 244, 0.28);
+    --landing-glow: rgba(138, 173, 244, 0.42);
 }
 
 html.theme--catppuccin-mocha {
@@ -70,7 +70,7 @@ html.theme--catppuccin-mocha {
     --landing-border: #313244;
     --landing-accent: #89b4fa;
     --landing-accent-contrast: #1e1e2e;
-    --landing-glow: rgba(137, 180, 250, 0.28);
+    --landing-glow: rgba(137, 180, 250, 0.42);
 }
 
 /* The landing page spans the same content width as a VitePress home layout
@@ -82,44 +82,76 @@ body:has(#landing) #documenter .docs-main > article {
     max-width: 72rem;
 }
 
+/* Everything below sizes the hero against the landing column itself, not the
+ * viewport. This matters because the two are not proportional: Documenter's
+ * own chrome flips its sidebar on at 1056px, which steps the content column
+ * down by 320px in a single pixel of resize (below it the column is the full
+ * viewport minus padding; above it the sidebar claims 20rem plus a 1rem
+ * gutter), and caps it at the 72rem above. Viewport-keyed sizes (vw units,
+ * @media) are blind to all three facts: they kept growing while the column
+ * was capped and jumped while the type did not, which is what made the hero
+ * reflow abruptly and the name wrap mid-range. A container query makes the
+ * column the single reference frame: every fluid size below is expressed in
+ * cqi (1% of the column's inline size) and every breakpoint is a
+ * @container condition, so the hero scales proportionally with the space it
+ * actually has — the sidebar flip becomes one coherent zoom instead of a
+ * re-wrap. Container queries are supported by every browser that already
+ * renders this sheet (it already depends on :has() above), so this adds no
+ * new compatibility requirement. */
+#landing {
+    container-type: inline-size;
+}
+
 /* ---- Hero: two columns, text left, logo right, vertically centered ---- */
 #landing .landing-hero {
     display: flex;
     align-items: center;
     gap: 4rem;
     padding: 2rem 0 2.5rem;
-    /* Clip only the horizontal axis so the hero can never push the page
-     * wider than the viewport. The glow stays visible in full vertically,
-     * so it renders as an unclipped circle instead of getting sliced flat. */
-    overflow-x: clip;
+    /* Deliberately no overflow clipping: the glow below spills past its box
+     * over the surrounding page (its blur is ink overflow, like a
+     * box-shadow, and can never widen the page), and clipping here would
+     * slice that halo flat. The one thing that must not spill — the
+     * no-wrap name — is clipped inside the text column below. */
 }
 #landing .landing-hero__text {
     flex: 0 1 58%;
     min-width: 0;
+    /* The hero's only overflow guard: an extreme no-wrap package name is
+     * clipped at its column's edge instead of pushing the page wider
+     * (content overflow scrolls; ink overflow does not). */
+    overflow-x: clip;
 }
 #landing .landing-name {
     margin: 0 0 0.75rem;
-    /* Fluid: interpolates between the mobile (1.5rem) and desktop (3.25rem)
-     * sizes as the viewport grows. The ramp is keyed so the desktop size is
-     * only reached once the text column can actually fit the long package
-     * name on one line — Documenter's sidebar consumes ~300px of width, so
-     * this happens later than the column's own 72rem cap. This keeps the
-     * name on a single line across the whole range instead of ugly-wrapping. */
-    font-size: clamp(1.5rem, calc(2.713vw + 3.16px), 3.25rem);
+    /* Scaled by the column (4cqi), capped at the VitePress desktop size.
+     * `nowrap` makes the single-line name a hard invariant instead of the
+     * old tuned vw ramp, which only kept a specific name on one line by
+     * coincidence. The math: the text column is ~58% of the landing column,
+     * and at 4cqi a bold name of ~24 characters spans ~46% of it — so the
+     * name stays on one line at *every* two-column width, growing and
+     * shrinking exactly with the column. Longer names shrink toward the
+     * 1.5rem floor rather than wrap; the floor fits ~26 characters even at
+     * the narrowest stacked width. */
+    font-size: clamp(1.5rem, 4cqi, 3.25rem);
     font-weight: 700;
     line-height: 1.15;
     color: var(--landing-accent);
-    overflow-wrap: anywhere;
+    white-space: nowrap;
 }
 #landing .landing-title {
     margin: 0 0 1.25rem;
-    font-size: clamp(2rem, calc(1.938vw + 17.1px), 3.25rem);
+    /* The ramps below interpolate between the same anchors the old vw clamps
+     * were tuned to — 2rem at the stacking width, 3.25rem at the 72rem column
+     * cap — but keyed to the column, so the step is continuous through every
+     * viewport flip and stops growing when the column stops. */
+    font-size: clamp(2rem, calc(3.906cqi + 7px), 3.25rem);
     font-weight: 700;
     line-height: 1.15;
 }
 #landing .landing-tagline {
     margin: 0 0 1.75rem;
-    font-size: clamp(1.05rem, calc(0.31vw + 14.4px), 1.25rem);
+    font-size: clamp(1.05rem, calc(0.625cqi + 12.8px), 1.25rem);
     line-height: 1.6;
 }
 #landing .landing-actions {
@@ -155,32 +187,51 @@ body:has(#landing) #documenter .docs-main > article {
     flex: 0 1 42%;
     display: flex;
     justify-content: center;
-    position: relative;
 }
-#landing .landing-hero__image img {
-    /* Shrink the logo fluidly with the viewport too, in step with the hero
-     * type: from 180px (mobile) up to 320px (desktop). A definite width (not
-     * a max) is used so a logo with a small intrinsic size still upscales to
-     * fill the box; height follows the aspect ratio. */
-    width: clamp(180px, calc(13.57vw + 75.8px), 320px);
-    height: auto;
+/* The logo rides in a fixed square box (VitePress's .image-container) whose
+ * size steps with the column; only the box itself has to fit the column
+ * (each step below is derived from the 42% image column's width), so a step
+ * never crowds the text. The logo fills ~2/3 of the box (75% on wide
+ * columns); `contain` keeps a small logo upscaling to fill its share and
+ * letterboxes a wide one instead of overflowing. */
+#landing .landing-hero__image-container {
+    width: 240px;
+    height: 240px;
+    flex: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#landing .landing-hero__image-container img {
+    width: 65%;
+    height: 65%;
+    object-fit: contain;
     position: relative;
     z-index: 1;
 }
-/* Soft radial glow behind the hero image, in the theme's accent hue. The
- * box is forced square (aspect-ratio: 1) so the radial gradient renders as a
- * true circle and looks isotropic on every layout, and it is kept within the
- * image column so it never bleeds past the content column on the right. */
-#landing .landing-hero__image::before {
+/* Glow behind the logo, in the theme's accent hue: a solid accent disc as
+ * wide as the box itself, its soft falloff provided entirely by the 40px
+ * blur (a pre-faded radial gradient on top of a blur reads dim and small).
+ * The halo is meant to spill past the box over whatever surrounds the hero
+ * — column gutters, padding, the page background — the way VitePress's own
+ * home hero glow does: nothing between here and the viewport clips
+ * overflow, and because the blur is ink overflow (not content overflow) it
+ * can never introduce a scrollbar, so the aura reads as one seamless layer
+ * over the page instead of a box-enclosed effect. On the stacked phone
+ * layout the disc steps back to 65% of the box so the halo stays on-screen
+ * (VitePress's mobile glow is contained the same way). */
+#landing .landing-hero__image-container::before {
     content: "";
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 88%;
+    width: 100%;
     aspect-ratio: 1 / 1;
+    border-radius: 50%;
     transform: translate(-50%, -50%);
-    background: radial-gradient(circle, var(--landing-glow), transparent 70%);
-    filter: blur(20px);
+    background: var(--landing-glow);
+    filter: blur(40px);
     z-index: 0;
 }
 
@@ -239,8 +290,39 @@ body:has(#landing) #documenter .docs-main > article {
     line-height: 1.55;
 }
 
-/* ---- Responsive: stack below a tablet width ---- */
-@media (max-width: 768px) {
+/* ---- Responsive: keyed to the landing column, not the viewport ---- */
+
+/* Wide columns step the box up, mirroring VitePress's own steps (240 → 320
+ * at 52rem, 320 → 392 at 64rem, where the logo's share of the box grows to
+ * 75%). Each threshold is where the 42% image column first fits the larger
+ * box with room for the text column beside it (0.42 × 832 − 27 ≈ 322px ≥
+ * 320; 0.42 × 1024 − 27 ≈ 404px ≥ 392), so a step never crowds the name.
+ * Only the logo share changes here — the glow disc stays the full width of
+ * the box at every step, so the spilled halo stays proportional to it. */
+@container (min-width: 52rem) {
+    #landing .landing-hero__image-container {
+        width: 320px;
+        height: 320px;
+    }
+}
+@container (min-width: 64rem) {
+    #landing .landing-hero__image-container {
+        width: 392px;
+        height: 392px;
+    }
+    #landing .landing-hero__image-container img {
+        width: 75%;
+    }
+}
+
+/* Below 40rem the column cannot fit two comfortable columns, so the hero
+ * stacks (logo above, text below). Only the direction, spacing, and the
+ * text column's width change here — the type ramps and the logo box are
+ * already column-keyed and continuous across this boundary, so nothing
+ * pops when it flips. The name keeps its nowrap single line: stacked, it
+ * has the full column width, which is strictly wider than the 58% it had
+ * beside the logo. */
+@container (max-width: 40rem) {
     #landing .landing-hero {
         flex-direction: column-reverse;
         align-items: center;
@@ -250,47 +332,42 @@ body:has(#landing) #documenter .docs-main > article {
     #landing .landing-hero__text {
         flex: 1 1 auto;
         width: 100%;
-        overflow-wrap: anywhere;
     }
-    /* Desktop hero type is sized for a two-column layout; when stacked it is
-     * oversized and forces ugly mid-word wrapping, so pull it down toward the
-     * VitePress mobile scale and shrink the logo to match. */
+    /* The image column needs a definite width too: with align-items: center
+     * it would shrink-wrap its content, and the box's min(320px, 100%)
+     * would resolve against an indefinite width and collapse. */
+    #landing .landing-hero__image {
+        width: 100%;
+    }
+    /* Contained glow on phones: the disc steps back to 65% of the box so
+     * the halo hugs the logo instead of running off the narrow screen. */
+    #landing .landing-hero__image-container::before {
+        width: 65%;
+    }
+    /* Stacked, the box no longer shares the row with the text column, so it
+     * takes VitePress's mobile size (320px, capped by the column) — the
+     * halo is just as prominent on a phone as on a desktop. */
+    #landing .landing-hero__image-container {
+        width: min(320px, 100%);
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
     #landing .landing-name {
-        font-size: 1.5rem;
         margin-bottom: 0.5rem;
     }
     #landing .landing-title {
-        font-size: 2rem;
         margin-bottom: 0.75rem;
     }
     #landing .landing-tagline {
-        font-size: 1.05rem;
         margin-bottom: 1.25rem;
     }
-    #landing .landing-name,
-    #landing .landing-title,
-    #landing .landing-tagline {
-        overflow-wrap: anywhere;
-    }
-    #landing .landing-hero__image img {
-        /* On the stacked layout, size the logo by height so a wide logo is as
-         * prominent as a square icon: the taller dimension is fixed and the
-         * width follows the aspect ratio up to the full column. A width-only
-         * cap left a wide logo as a short strip next to a tall square one.
-         * `object-fit: contain` letterboxes only extreme aspect ratios that
-         * would otherwise overrun the column width. */
-        height: 180px;
-        width: auto;
-        max-width: 100%;
-        object-fit: contain;
-    }
-    #landing .landing-hero__image::before {
-        /* On the stacked layout the image column spans the full width but is
-         * only as tall as the image (~180px). A column-relative glow would
-         * balloon at wider phone widths, so size it to the image instead: a
-         * fixed circle that hugs the logo and stays fully within the hero. */
-        width: 220px;
-    }
+}
+
+/* The tile grid is the one piece left on a viewport media query: the tiles
+ * are a fixed 3-column grid (they do not scale with the column like the
+ * hero does), and a viewport tablet width is a fine proxy for when three
+ * tiles no longer fit side by side. */
+@media (max-width: 768px) {
     #landing .landing-features {
         grid-template-columns: 1fr;
     }
