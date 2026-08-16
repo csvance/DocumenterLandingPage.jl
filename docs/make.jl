@@ -9,6 +9,16 @@ makedocs(
         edit_link = "main",
         canonical = "https://csvance.github.io/DocumenterLandingPage.jl/",
         inventory_version = "0.1.0",
+        # The site deploys to a GitHub Pages *project* page
+        # (…/DocumenterLandingPage.jl/dev/), so favicon hrefs must stay
+        # page-relative. Documenter computes that per page for `asset`s, and
+        # the `:ico` class is the supported way to emit `<link rel=icon>`
+        # from non-`.ico` files. Browsers sniff the served content, so the
+        # generic type hint Documenter writes is harmless.
+        assets = [
+            Documenter.asset("assets/icon.svg", class = :ico, islocal = true),
+            Documenter.asset("assets/favicon-32.png", class = :ico, islocal = true),
+        ],
     ),
     repo = Documenter.Remotes.GitHub("csvance", "DocumenterLandingPage.jl"),
     modules = [DocumenterLandingPage],

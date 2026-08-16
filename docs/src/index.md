@@ -16,7 +16,6 @@ hero:
   image:
     src: /logo.svg
     alt: DocumenterLandingPage.jl
-    dark: /logo-dark.svg
 
 features:
   - icon: 📄
