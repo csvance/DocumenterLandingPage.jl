@@ -25,8 +25,10 @@ features:
     title: Theme-adaptive
     details: Mirrors Documenter's own theme palette, so the landing follows light, dark, and every catppuccin flavor.
   - icon:
-      src: /logo.svg
-      alt: DocumenterLandingPage.jl
+      light: /documenter-logo.svg
+      dark: /documenter-logo-dark.svg
+      alt: Documenter.jl
+      wrap: true
     title: Documenter plugin
     details: Add it to your plugins list, and the stylesheet is injected automatically, no assets to configure.
   - icon: 🤝
