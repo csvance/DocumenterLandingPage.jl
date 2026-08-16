@@ -172,6 +172,17 @@ print media restore it, and selecting the text stays readable.
 See [Styling: gradients and themes](docs/src/styling.md) for the full
 per-theme default table and the complete customization reference.
 
+## Skills
+
+This repository doubles as a skill registry for building Documenter sites
+with the plugin. See [`skills/`](skills/) for the index, the install
+instructions, and the `dlp-theme` skill, which teaches building a custom
+theme (brand gradients plus a full recolor of Documenter's chrome) from the
+site's own `assets=` stylesheet. The registry works for pi (project
+`.pi/settings.json` or `pi --skill`) and for Claude Code (a plugin
+marketplace: `/plugin marketplace add csvance/DocumenterLandingPage.jl`
+then `/plugin install documenterlandingpage-jl`).
+
 ## Compatibility
 
 - Documenter 1.17

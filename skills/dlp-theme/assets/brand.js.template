@@ -1,0 +1,36 @@
+// Optional companion to brand.css: prune the theme picker to the themes
+// your site actually ships, and reset a catppuccin theme persisted from an
+// earlier visit. Wire it next to brand.css in the assets= list.
+//
+// The picker lives in the settings modal at the end of the body, so the
+// option removal must wait for the parsed DOM.
+(function () {
+    function run() {
+        var picker = document.getElementById("documenter-themepicker");
+        if (picker) {
+            var options = picker.querySelectorAll("option");
+            for (var i = options.length - 1; i >= 0; i--) {
+                if (options[i].value.indexOf("catppuccin") === 0) {
+                    options[i].parentNode.removeChild(options[i]);
+                }
+            }
+        }
+        var stored = null;
+        try {
+            stored = window.localStorage.getItem("documenter-theme");
+        } catch (e) {}
+        if (stored && stored.indexOf("catppuccin") === 0) {
+            try {
+                window.localStorage.removeItem("documenter-theme");
+            } catch (e) {}
+            if (typeof set_theme_from_local_storage === "function") {
+                set_theme_from_local_storage();
+            }
+        }
+    }
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", run);
+    } else {
+        run();
+    }
+})();

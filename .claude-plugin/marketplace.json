@@ -1,0 +1,26 @@
+{
+  "name": "documenterlandingpage-jl",
+  "owner": {
+    "name": "Carroll Vance",
+    "url": "https://github.com/csvance/DocumenterLandingPage.jl"
+  },
+  "metadata": {
+    "description": "Agent skills for DocumenterLandingPage.jl, the VitePress-style landing page plugin for Documenter.jl.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "documenterlandingpage-jl",
+      "source": "./",
+      "description": "Skills for building Documenter.jl documentation sites with DocumenterLandingPage.jl, including dlp-theme for custom themes (brand gradients and a full recolor of Documenter's chrome).",
+      "version": "1.0.0",
+      "category": "development",
+      "keywords": [
+        "julia",
+        "documenter",
+        "documentation",
+        "landing-page"
+      ]
+    }
+  ]
+}
