@@ -121,6 +121,30 @@ function _render_details(details, doc, page)
     return join(parts, " ")
 end
 
+# Does the tile's details parse to inline content containing a Markdown link
+# (including links nested inside emphasis and autolinks)? Code spans, images,
+# and fenced code are not links and don't count. Used to warn about the
+# nested-anchor combination: a tile with a tile-level `link` wraps its whole
+# content in an anchor, and HTML forbids an anchor inside an anchor.
+function _details_has_link(details)
+    md = Markdown.parse(string(details))
+    for block in md.content
+        block isa Markdown.Paragraph || continue
+        _inline_has_link(block.content) && return true
+    end
+    return false
+end
+
+function _inline_has_link(children)
+    for child in children
+        child isa Markdown.Link && return true
+        if child isa Markdown.Bold || child isa Markdown.Italic
+            _inline_has_link(child.text) && return true
+        end
+    end
+    return false
+end
+
 function _render_actions(actions, doc, page)
     isempty(actions) && return ""
     parts = String[]
@@ -203,6 +227,12 @@ function _render_feature(feature, doc, page)
         "<h2 class=\"landing-feature__title\">$(title)</h2>\n" *
         "<p class=\"landing-feature__details\">$(details)</p>"
     link = get(feature, "link", "")
+    if !isempty(link) && _details_has_link(get(feature, "details", ""))
+        # Anchors cannot nest: the tile wraps everything in <a>, so a Markdown
+        # link in its details would make the browser split the tile into
+        # separate fragments. Warn instead of silently emitting broken markup.
+        @warn "Feature tile \"$(get(feature, "title", ""))\" on $(page.build) has both a tile link and Markdown links in its details; nested anchors are invalid HTML and the browser splits the tile. Drop the tile's link and let the details links navigate, or keep details to code spans and emphasis on linked tiles."
+    end
     if isempty(link)
         return "<div class=\"landing-feature\">\n$(inner)\n  </div>"
     else

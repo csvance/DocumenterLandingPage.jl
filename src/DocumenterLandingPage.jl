@@ -47,8 +47,10 @@ The frontmatter is exactly the VitePress home layout: a `hero` block (name,
 text, tagline, actions, image) and a `features` block (icon, title, details,
 link per tile). A tile's `details` renders as inline Markdown — code spans,
 emphasis, links, and images — with links resolving through the same
-root-relative rules as every other frontmatter link. A tile's icon may be an
-emoji string or an image mapping
+root-relative rules as every other frontmatter link. (A tile with `link`
+should keep Markdown links out of its details — anchors cannot nest — and
+the build warns if you combine them.) A tile's icon may be an emoji string
+or an image mapping
 (`src`, or `light`/`dark` theme variants, with an optional badge `wrap`).
 An optional `image.dark` gives the hero a second image for
 dark themes: the plugin emits both variants with Documenter's own

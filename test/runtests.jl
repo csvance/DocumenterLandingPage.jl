@@ -280,6 +280,37 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         )
     end
 
+    @testset "linked tiles vs details links (nested anchors)" begin
+        # A tile with both a tile-level `link` and Markdown links in its
+        # details would nest anchors, which HTML forbids: the build warns
+        # instead of silently emitting markup the browser will split.
+        docsite = joinpath(@__DIR__, "docsite")
+        doc = (user = (root = docsite, source = "src", build = "build"),)
+        page = (build = "build/index.html",)
+        function tile(feature)
+            return DLP._render_feature(
+                merge(Dict{Any, Any}("title" => "T"), feature), doc, page
+            )
+        end
+
+        # Detection: an explicit link, one nested in emphasis, and an autolink
+        # all count; code spans, images, fenced code, and block-fallback
+        # content do not.
+        @test DLP._details_has_link("[x](/y/)")
+        @test DLP._details_has_link("**see [x](/y/)**")
+        @test DLP._details_has_link("go <https://example.com>")
+        @test !DLP._details_has_link("`[x](/y/)`")        # code span: literal text
+        @test !DLP._details_has_link("![x](/y.svg)")      # image, not a link
+        @test !DLP._details_has_link("use:\n\n```\n[x](/y/)\n```") # fenced code
+        @test !DLP._details_has_link("plain **bold** text")
+        @test !DLP._details_has_link("# H\n\n- a")        # block fallback
+
+        # A linked tile with a details link warns; with only code spans and
+        # emphasis it renders silently.
+        @test_logs (:warn, r"nested") tile(Dict{Any, Any}("link" => "/tutorial/", "details" => "[x](/y/)"))
+        @test_logs tile(Dict{Any, Any}("link" => "/tutorial/", "details" => "use `foo(x)` and **bold**"))
+    end
+
     @testset "both plugins compose (LandingPage + CodeBlocks)" begin
         # The docsite fixture is built with both plugins in one makedocs call:
         # this is the compatibility test that the landing page and the enhanced

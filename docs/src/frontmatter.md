@@ -140,7 +140,10 @@ Each entry in `features` is one tile with four keys:
 `link`
 : Optional. When present, the whole tile becomes a link to the resolved
   destination. When absent, the tile renders as a plain, non-interactive
-  block. See [Link resolution](#Link-resolution).
+  block. See [Link resolution](#Link-resolution). A tile with `link` must
+  keep its `details` free of Markdown links — anchors cannot nest, and the
+  build warns if you combine them. See
+  [Markup in details](#Markup-in-details).
 
 ## Icons
 
@@ -234,8 +237,17 @@ The rules:
 - Block-level Markdown has no honest inline rendering: a fenced code block
   collapses to an inline code span, and any other block construct (a header,
   a list, ...) makes the whole field fall back to plain escaped text.
-- A tile that sets `link` wraps everything in an anchor, and HTML forbids
-  nesting anchors. Keep Markdown links to tiles without a tile-level `link`.
+
+!!! warning "Don't put links in the copy of a linked tile"
+
+    A tile that sets `link` is wrapped in a single anchor, and HTML forbids
+    an anchor inside an anchor. If the tile's `details` also contains a
+    Markdown link, the browser splits the tile into separate fragments: the
+    inner link renders blue and clickable, the tile's hover and click region
+    is cut around it, and different parts of the tile go to different pages.
+    Keep Markdown links out of `details` on tiles that set `link`, and give
+    copy links their own unlinked tile instead. The build warns about this
+    combination when it sees it.
 
 Titles, the hero text, and button labels stay plain text, matching VitePress.
 
