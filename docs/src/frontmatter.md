@@ -142,7 +142,8 @@ Each entry in `features` is one tile with four keys:
   destination. When absent, the tile renders as a plain, non-interactive
   block. See [Link resolution](#Link-resolution). A tile with `link` must
   keep its `details` free of Markdown links — anchors cannot nest, and the
-  build warns if you combine them. See
+  build warns if you combine them. Code spans on a linked tile also take the
+  theme's link color rather than the usual ink. See
   [Markup in details](#Markup-in-details).
 
 ## Icons
@@ -248,6 +249,15 @@ The rules:
     Keep Markdown links out of `details` on tiles that set `link`, and give
     copy links their own unlinked tile instead. The build warns about this
     combination when it sees it.
+
+    Relatedly, code spans change color on linked tiles: Documenter styles
+    `a code` with the theme's link color (the same rule that tints code
+    inside any prose link), so a code span in a linked tile renders in the
+    accent color instead of the usual ink — the chip background still shows,
+    and hovering darkens the text further. Bold and italic text are
+    unaffected; they keep the tile's own text color. A user stylesheet can
+    restore the normal code color (`.landing-feature code { color: … }`),
+    since your own assets win over the plugin's sheet.
 
 Titles, the hero text, and button labels stay plain text, matching VitePress.
 
