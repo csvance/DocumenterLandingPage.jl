@@ -2,6 +2,7 @@ using Test
 using Documenter
 using DocumenterLandingPage
 using DocumenterCodeBlocks
+using Markdown
 
 const DLP = DocumenterLandingPage
 
@@ -235,7 +236,20 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         # remap bare src/assets/ files into the site's assets/ directory.
         @test occursin("<a href=\"tutorial/\">the tutorial</a>", tile("see [the tutorial](/tutorial/)"))
         @test occursin("<a href=\"https://julialang.org\">Julia</a>", tile("[Julia](https://julialang.org)"))
+        # Autolinks (<https://...>) parse as links carrying the URL as text.
+        @test occursin(
+            "<a href=\"https://julialang.org\">https://julialang.org</a>",
+            tile("go <https://julialang.org> now"),
+        )
         @test occursin("<img src=\"assets/logo.svg\" alt=\"the logo\">", tile("![the logo](/logo.svg)"))
+        # Image alt text is escaped like every other text node.
+        @test occursin("alt=\"a &amp; b\"", tile("![a & b](/logo.svg)"))
+
+        # Escaping reaches inside nested markup, and links nest inside
+        # emphasis through the same recursion.
+        @test occursin("<strong>a &amp; b</strong>", tile("**a & b**"))
+        @test occursin("<a href=\"tutorial/\">x &lt; y</a>", tile("[x < y](/tutorial/)"))
+        @test occursin("<strong>see <a href=\"raw/\">docs</a></strong>", tile("**see [docs](/raw/)**"))
 
         # Hard line breaks (trailing backslash) render <br>.
         @test occursin("one<br>two", tile("one\\\ntwo"))
@@ -248,6 +262,22 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         # Anything but paragraphs and fenced code falls back to the plain
         # escaped text of the whole field (here: a header followed by a list).
         @test occursin("<p class=\"landing-feature__details\"># H &amp; more</p>", tile("# H & more"))
+        # Multiple paragraphs collapse into one inline flow, space-joined.
+        @test occursin("<p class=\"landing-feature__details\">first second</p>", tile("first\n\nsecond"))
+
+        # Non-string YAML scalars (a bare number, a boolean) are normalized
+        # through `string` instead of crashing the render.
+        @test occursin("<p class=\"landing-feature__details\">42</p>", tile(42))
+
+        # The two defensive arms of _render_inline_node, which Markdown.parse
+        # itself cannot produce in inline position: an HTML node escapes its
+        # content, and an unrecognized node type renders its escaped `string`
+        # form rather than crashing the build.
+        @test DLP._render_inline_node(Markdown.HTML("<br>"), doc, page) == "&lt;br&gt;"
+        @test occursin(
+            "&amp;",
+            DLP._render_inline_node(Markdown.Header{1}(Any["a & b"]), doc, page),
+        )
     end
 
     @testset "both plugins compose (LandingPage + CodeBlocks)" begin
