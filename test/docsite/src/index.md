@@ -24,7 +24,7 @@ hero:
 features:
   - icon: ⚡
     title: KServe V2, natively
-    details: Speaks the KServe V2 inference API over gRPC, so standard Triton and KServe clients connect unchanged.
+    details: Speaks the `KServe V2` inference API over gRPC, so standard Triton and KServe clients connect unchanged.
     link: /client/
   - icon: 🚀
     title: XLA under the hood
@@ -32,7 +32,7 @@ features:
     link: /tutorial/
   - icon: 🧩
     title: Julia-first
-    details: A bundle's model.jl registers pre and postprocessing in plain Julia, and every convention follows Julia's, column-major with the batch axis last.
+    details: A bundle's `model.jl` registers pre and postprocessing in **plain Julia**, and every convention follows Julia's, column-major with the batch axis last.
     link: /bundles/
   - icon: 💾
     title: On-demand weights
@@ -73,6 +73,9 @@ features:
     title: Low-latency inference
     details: Requests coalesce into compiled batch executions, so one card serves many models at once.
     link: /scheduling/
+  - icon: 📝
+    title: Markup in details
+    details: Tile copy renders **inline Markdown** with `code spans`, [links to pages](/raw/), [external links](https://vitepress.dev/reference/default-theme-home-page), and *emphasis*.
 ---
 ```
 

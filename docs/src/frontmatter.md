@@ -34,7 +34,7 @@ hero:
 features:
   - icon: ⚡                   # emoji shown in the tile's badge box
     title: A capability       # tile heading
-    details: One sentence.    # tile body (plain text)
+    details: One sentence.    # tile body (inline Markdown)
     link: /page               # optional: makes the whole tile a link
   - icon:
       src: /icon.svg          # or an image icon from src/assets/
@@ -131,9 +131,11 @@ Each entry in `features` is one tile with four keys:
 : Optional. The tile heading. Defaults to empty.
 
 `details`
-: Optional. The tile body. Rendered as plain escaped text with no markdown or
-  code formatting, so tile copy must be written as plain English. Defaults to
-  empty.
+: Optional. The tile body, rendered as **inline Markdown**: code spans,
+  emphasis, links, images, and hard line breaks carry through, while plain
+  text stays escaped exactly as it always was. Links resolve through the same
+  rules as every other frontmatter link. Defaults to empty. See
+  [Markup in details](#Markup-in-details).
 
 `link`
 : Optional. When present, the whole tile becomes a link to the resolved
@@ -203,6 +205,40 @@ features:
 ```
 ````
 
+## Markup in details
+
+A feature's `details` renders as inline Markdown, so tile copy can carry
+code spans, emphasis, links, and images:
+
+````markdown
+```@raw html
+features:
+  - icon: ⚡
+    title: A capability
+    details: Calls `foo(x)` from **any** package — see the [tutorial](/tutorial/)
+      and the [API](api/).
+```
+````
+
+The rules:
+
+- Plain text is escaped exactly like it always was; raw HTML (`<br>`,
+  `<span>`, ...) renders literally and cannot be injected. The Markdown
+  parser leaves inline HTML inside text nodes, so it never passes through
+  unescaped.
+- Links and images resolve through the same
+  [link resolution](#Link-resolution) rules as every other frontmatter
+  target: `/tutorial/` resolves like a tile `link`, and `/logo.svg` remaps
+  into the site's `assets/` directory.
+- A line ending in a backslash renders a hard line break (`<br>`).
+- Block-level Markdown has no honest inline rendering: a fenced code block
+  collapses to an inline code span, and any other block construct (a header,
+  a list, ...) makes the whole field fall back to plain escaped text.
+- A tile that sets `link` wraps everything in an anchor, and HTML forbids
+  nesting anchors. Keep Markdown links to tiles without a tile-level `link`.
+
+Titles, the hero text, and button labels stay plain text, matching VitePress.
+
 ## Conditional rendering
 
 Only the parts present in the YAML are emitted, so the page adapts to what
@@ -220,7 +256,8 @@ source of truth for the landing copy.
 
 ## Link resolution
 
-Every `link` (and image `src`) goes through the same resolver. A target is
+Every `link` — including Markdown links inside `details` — and every image
+`src` (Markdown images included) goes through the same resolver. A target is
 handled by the first rule that matches:
 
 - empty: returned unchanged;
@@ -246,3 +283,7 @@ writing frontmatter:
 - A value that starts with `#` must be quoted, otherwise YAML reads it as a
   comment and the key parses as `nothing`. An action pointing at the Usage
   section must be written `link: "#Usage"`, not `link: #Usage`.
+- Markdown in `details` follows the same rules. A value that *starts* with a
+  link (`[text](/page/) ...`) must be quoted, because YAML reads a leading
+  `[` as a flow sequence; and copy containing `": "` (say, a link followed
+  by a colon and a space) must be quoted like any other plain scalar.

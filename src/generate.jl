@@ -67,6 +67,60 @@ function _resolve_href(doc, page, target::AbstractString)
     return target
 end
 
+# ---------------------------------------------------------------------------
+# Inline Markdown for tile details (issue #5).
+#
+# A feature's `details` is parsed with the Markdown stdlib and rendered
+# inline: code spans, emphasis, links, images, and hard line breaks carry
+# through, while every text node is escaped exactly like plain details have
+# always been. The stdlib parser leaves raw HTML (`<br>`, `<span>`, ...) inside
+# plain text nodes, so inline HTML never passes through unescaped. Links and
+# image sources resolve through _resolve_href, so a `/tutorial/` written in
+# details behaves like every other frontmatter link. Block-level constructs
+# have no honest inline rendering: fenced code collapses to an inline <code>,
+# and anything else (headers, lists, ...) falls back to the plain escaped
+# text of the whole field.
+
+# Render one parsed inline node to HTML. The final `_esc(string(node))` arm
+# keeps unknown node types visible (escaped) instead of crashing the build.
+function _render_inline_node(node, doc, page)
+    node isa AbstractString && return _esc(node)
+    node isa Markdown.Code && return "<code>$(_esc(node.code))</code>"
+    node isa Markdown.Bold && return "<strong>$(_render_inline(node.text, doc, page))</strong>"
+    node isa Markdown.Italic && return "<em>$(_render_inline(node.text, doc, page))</em>"
+    node isa Markdown.Link &&
+        return "<a href=\"$(_esc(_resolve_href(doc, page, node.url)))\">$(_render_inline(node.text, doc, page))</a>"
+    node isa Markdown.Image &&
+        return "<img src=\"$(_esc(_resolve_href(doc, page, node.url)))\" alt=\"$(_esc(node.alt))\">"
+    node isa Markdown.LineBreak && return "<br>"
+    node isa Markdown.HTML && return _esc(node.content)
+    return _esc(string(node))
+end
+
+function _render_inline(children, doc, page)
+    parts = String[]
+    for child in children
+        push!(parts, _render_inline_node(child, doc, page))
+    end
+    return join(parts)
+end
+
+# Render a feature tile's details string as inline Markdown.
+function _render_details(details, doc, page)
+    md = Markdown.parse(string(details))
+    parts = String[]
+    for block in md.content
+        if block isa Markdown.Paragraph
+            push!(parts, _render_inline(block.content, doc, page))
+        elseif block isa Markdown.Code
+            push!(parts, "<code>$(_esc(block.code))</code>")
+        else
+            return _esc(string(details))
+        end
+    end
+    return join(parts, " ")
+end
+
 function _render_actions(actions, doc, page)
     isempty(actions) && return ""
     parts = String[]
@@ -144,7 +198,7 @@ end
 function _render_feature(feature, doc, page)
     icon = _render_feature_icon(get(feature, "icon", ""), doc, page)
     title = _esc(get(feature, "title", ""))
-    details = _esc(get(feature, "details", ""))
+    details = _render_details(get(feature, "details", ""), doc, page)
     inner = "$(icon)\n" *
         "<h2 class=\"landing-feature__title\">$(title)</h2>\n" *
         "<p class=\"landing-feature__details\">$(details)</p>"

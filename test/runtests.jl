@@ -12,10 +12,11 @@ const DLP = DocumenterLandingPage
 # docsite fixture.
 function _assert_landing(index::AbstractString)
     @test occursin("id=\"landing\"", index)
-    # All ten feature tiles, in order: six with emoji icons, one bare image
-    # icon, and three wrapped image icons (the wide logo plus two 1:1 SVGs).
-    @test count("class=\"landing-feature\"", index) == 10
-    for emoji in ["⚡", "🚀", "🧩", "💾", "🔀", "🔁"]
+    # All eleven feature tiles, in order: six with emoji icons, one bare image
+    # icon, three wrapped image icons (the wide logo plus two 1:1 SVGs), and
+    # one exercising inline Markdown in details.
+    @test count("class=\"landing-feature\"", index) == 11
+    for emoji in ["⚡", "🚀", "🧩", "💾", "🔀", "🔁", "📝"]
         @test occursin(emoji, index)
     end
     # The image-icon tiles render resolved <img>s (assets/ remap, 48x48): the
@@ -37,13 +38,25 @@ function _assert_landing(index::AbstractString)
             "KServe V2, natively", "XLA under the hood", "Julia-first",
             "On-demand weights", "A coalescing scheduler", "Hot reload",
             "Custom tile icons", "A wrapped image icon", "Device agnostic",
-            "Low-latency inference",
+            "Low-latency inference", "Markup in details",
         ]
         @test occursin(title, index)
     end
     @test occursin("landing-name\">ReactantServer.jl", index)
     @test occursin("landing-title\">Production inference", index)
     @test occursin("landing-btn--brand", index)
+    # Details render as inline Markdown: code spans, emphasis, and links —
+    # root-relative targets resolve like every other frontmatter link, and
+    # external URLs pass through unchanged.
+    @test occursin("Speaks the <code>KServe V2</code> inference API", index)
+    @test occursin("<code>model.jl</code>", index)
+    @test occursin("<strong>plain Julia</strong>", index)
+    @test occursin("<a href=\"raw/\">links to pages</a>", index)
+    @test occursin(
+        "<a href=\"https://vitepress.dev/reference/default-theme-home-page\">external links</a>",
+        index,
+    )
+    @test occursin("<em>emphasis</em>", index)
     # Root-relative frontmatter links become page-relative hrefs, keeping the
     # frontmatter's trailing slash on directory targets.
     @test occursin("href=\"tutorial/\"", index)
@@ -187,6 +200,54 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         html = tile(Dict{Any, Any}("alt" => "x"))
         @test !occursin("<img", html)
         @test !occursin("landing-feature__icon", html)
+    end
+
+    @testset "inline markdown in details" begin
+        # `details` renders as inline Markdown (issue #5): code spans,
+        # emphasis, links, images, and hard line breaks, with every text node
+        # still escaped. Links and image sources ride the same resolver as
+        # every other frontmatter target, raw HTML never passes through (the
+        # stdlib parser leaves it inside text nodes), and block-level
+        # constructs collapse: fenced code becomes an inline code span while
+        # anything else falls back to the plain escaped text of the whole
+        # field, exactly how details rendered before.
+        docsite = joinpath(@__DIR__, "docsite")
+        doc = (user = (root = docsite, source = "src", build = "build"),)
+        page = (build = "build/index.html",)
+        function tile(details)
+            return DLP._render_feature(
+                Dict{Any, Any}("title" => "T", "details" => details), doc, page
+            )
+        end
+
+        # Plain text round-trips exactly as it always rendered: escaped,
+        # with no markup injected.
+        @test occursin("<p class=\"landing-feature__details\">a &amp; b &lt; c</p>", tile("a & b < c"))
+        @test occursin("<p class=\"landing-feature__details\"></p>", tile(""))
+
+        # Code spans (content escaped) and nested emphasis.
+        @test occursin("the <code>KServe V2</code> API", tile("the `KServe V2` API"))
+        @test occursin("<code>a &amp; b</code>", tile("`a & b`"))
+        @test occursin("<strong>plain <em>very</em> Julia</strong>", tile("**plain *very* Julia**"))
+
+        # Links resolve through the frontmatter rules: root-relative targets
+        # keep their trailing slash, external URLs pass through, and images
+        # remap bare src/assets/ files into the site's assets/ directory.
+        @test occursin("<a href=\"tutorial/\">the tutorial</a>", tile("see [the tutorial](/tutorial/)"))
+        @test occursin("<a href=\"https://julialang.org\">Julia</a>", tile("[Julia](https://julialang.org)"))
+        @test occursin("<img src=\"assets/logo.svg\" alt=\"the logo\">", tile("![the logo](/logo.svg)"))
+
+        # Hard line breaks (trailing backslash) render <br>.
+        @test occursin("one<br>two", tile("one\\\ntwo"))
+
+        # Raw HTML stays escaped: the parser keeps it inside text nodes.
+        @test occursin("&lt;br&gt;", tile("a <br> b"))
+
+        # Block-level constructs collapse.
+        @test occursin("<code>x = 1</code>", tile("use:\n\n```\nx = 1\n```"))
+        # Anything but paragraphs and fenced code falls back to the plain
+        # escaped text of the whole field (here: a header followed by a list).
+        @test occursin("<p class=\"landing-feature__details\"># H &amp; more</p>", tile("# H & more"))
     end
 
     @testset "both plugins compose (LandingPage + CodeBlocks)" begin
