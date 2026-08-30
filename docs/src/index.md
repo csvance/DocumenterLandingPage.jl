@@ -55,8 +55,8 @@ from the YAML frontmatter in the `@raw html` block at the top of `index.md`,
 and the tiles' details show off the plugin's inline Markdown — code spans,
 links, and emphasis. See [Markup in details](frontmatter.md#Markup-in-details)
 for the full rules. Tiles with a `link` are clickable end to end — try the
-[plugin](tutorial/), [drop-in](frontmatter/), and repository tiles — while
-the tiles that keep their links in the copy render as plain blocks.
+[plugin](tutorial.md), [drop-in](frontmatter.md), and repository tiles —
+while the tiles that keep their links in the copy render as plain blocks.
 
 ## Usage
 
