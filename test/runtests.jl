@@ -43,7 +43,12 @@ function _assert_landing(index::AbstractString)
         ]
         @test occursin(title, index)
     end
-    @test occursin("landing-name\">ReactantServer.jl", index)
+    # The name carries its own character count, which the stylesheet uses to
+    # cap the size at what fits one line ("ReactantServer.jl" is 17).
+    @test occursin(
+        "<p class=\"landing-name\" style=\"--landing-name-chars: 17\">ReactantServer.jl</p>",
+        index,
+    )
     @test occursin("landing-title\">Production inference", index)
     @test occursin("landing-btn--brand", index)
     # Details render as inline Markdown: code spans, emphasis, and links —
@@ -134,6 +139,26 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
         @test !occursin("docs-dark-only", html2)
         @test count("<img ", html2) == 1
         @test occursin("src=\"assets/logo.svg\"", html2)
+    end
+
+    @testset "hero name character count" begin
+        # A package name is one unbreakable word, so the stylesheet sizes it to
+        # fit rather than letting it wrap or clip; CSS cannot count characters,
+        # so the generator passes the count through.
+        docsite = joinpath(@__DIR__, "docsite")
+        doc = (user = (root = docsite, source = "src", build = "build"),)
+        page = (build = "build/index.html",)
+        render(name) = DLP._render_landing(
+            Dict{Any, Any}("layout" => "home", "hero" => Dict{Any, Any}("name" => name)),
+            doc, page,
+        )
+        @test occursin("style=\"--landing-name-chars: 24\">DocumenterLandingPage.jl<", render("DocumenterLandingPage.jl"))
+        @test occursin("style=\"--landing-name-chars: 1\">X<", render("X"))
+        # Counted in characters, not bytes: a non-ASCII name must not be
+        # over-counted, or the stylesheet would shrink it needlessly.
+        @test occursin("style=\"--landing-name-chars: 4\">Ω.jl<", render("\u03a9.jl"))
+        # An absent name emits no element at all, as before.
+        @test !occursin("landing-name", render(""))
     end
 
     @testset "image feature icons" begin
@@ -411,6 +436,63 @@ const LANDING_REGION = r"(?s)<div id=\"landing\".*?</section>\n</div>"
             @test !occursin("documentercodeblocks", base_index)
         finally
             rm(base_build; recursive = true, force = true)
+        end
+    end
+
+    @testset "MaterialDocs compatibility (Material3 writer)" begin
+        # The same landing frontmatter, built with MaterialDocs' `Material3`
+        # writer instead of Documenter's HTML writer. `Material3` is a sibling
+        # of `Documenter.HTML`, not a subtype, so the plugin reaches it through
+        # DocumenterLandingPageMaterialDocsExt; loading MaterialDocs in the
+        # subprocess is what activates that extension.
+        #
+        # Subprocess for the same reason the base build uses one: Documenter
+        # registers every loaded pipeline step for every build, so CodeBlocks'
+        # asset step would otherwise leak into a build that never asked for it.
+        docsite = joinpath(@__DIR__, "docsite")
+        mat_build = joinpath(docsite, "build-material")
+        rm(mat_build; recursive = true, force = true)
+        script = joinpath(docsite, "build_material.jl")
+        run(`$(Base.julia_cmd()) --project=$(Base.active_project()) $script $docsite`)
+        try
+            mat_index = read(joinpath(mat_build, "index.html"), String)
+            both_index = read(joinpath(docsite, "build", "index.html"), String)
+
+            # The landing renders the same under both writers. It has to:
+            # expansion runs in ExpandTemplates, before Documenter has picked
+            # a writer, so the generator cannot emit writer-specific markup
+            # even if it wanted to. Every writer difference is CSS.
+            _assert_landing(mat_index)
+            mat_landing = match(LANDING_REGION, mat_index)
+            both_landing = match(LANDING_REGION, both_index)
+            @test mat_landing !== nothing
+            @test mat_landing.match == both_landing.match
+
+            # Both stylesheets are injected, through MaterialDocs' own
+            # `<head>` asset machinery (the asset step is a no-op for a writer
+            # the plugin cannot reach, so this is the whole extension).
+            @test occursin("assets/documenterlandingpage/landing.css", mat_index)
+            @test occursin("assets/documenterlandingpage/landing-material.css", mat_index)
+            @test isfile(joinpath(mat_build, "assets", "documenterlandingpage", "landing-material.css"))
+            @test !occursin("documentercodeblocks", mat_index)
+
+            # The landing sits in MaterialDocs' article container, which is
+            # what landing-material.css widens.
+            @test occursin("md-article\">\n<div id=\"landing\"", mat_index)
+
+            # Every MD3 token the companion sheet reads is a token MaterialDocs
+            # actually generates. This is the coupling that would break
+            # silently if MaterialDocs renamed a color role: the landing page
+            # would keep rendering, with an unstyled palette.
+            mat_css = read(joinpath(mat_build, "assets", "documenterlandingpage", "landing-material.css"), String)
+            md_css = read(joinpath(mat_build, "assets", "materialdocs.css"), String)
+            tokens = unique(m.captures[1] for m in eachmatch(r"var\((--md-sys-color-[a-z-]+)\)", mat_css))
+            @test !isempty(tokens)
+            for token in tokens
+                @test occursin("$(token):", md_css)
+            end
+        finally
+            rm(mat_build; recursive = true, force = true)
         end
     end
 end

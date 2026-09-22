@@ -22,6 +22,14 @@ both run in one build, the plugin's CSS is injected through the same asset
 mechanism CodeBlocks uses, and the landing page and enhanced code blocks
 coexist on the same pages.
 
+And it supports [MaterialDocs.jl](https://github.com/mthelm85/MaterialDocs.jl):
+pass `format = Material3(...)` instead of `Documenter.HTML(...)` and the
+landing page renders the same, in the Material theme's own colors and dark
+mode. Nothing else changes in your `makedocs` call. Support ships as a
+package extension, so it costs nothing if you do not use MaterialDocs. See
+[Styling](https://csvance.github.io/DocumenterLandingPage.jl/dev/styling/)
+for how the palette maps onto Material Design 3 color roles.
+
 ## Usage
 
 ```julia
@@ -188,6 +196,7 @@ then `/plugin install documenterlandingpage-jl`).
 - Documenter 1.17
 - YAML 0.4
 - Julia 1.10 (LTS and newer)
+- MaterialDocs 0.2 (optional, through a package extension)
 
 ## License
 
