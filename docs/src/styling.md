@@ -95,6 +95,54 @@ stylesheets.
   that exist. This is the same contract VitePress's `--vp-home-hero-*`
   variables provide.
 
+## MaterialDocs (Material3)
+
+The plugin supports MaterialDocs' `Material3` writer. Pass it as the format
+and change nothing else:
+
+```julia
+using Documenter, DocumenterLandingPage, MaterialDocs
+
+makedocs(
+    sitename = "MyPackage.jl",
+    format = Material3(theme = :ocean_depth, dark_mode = :toggle),
+    plugins = [LandingPage()],
+)
+```
+
+`using MaterialDocs` activates a package extension; without it the plugin
+does not know about the writer and adds nothing to a Material3 build.
+
+The landing **markup is identical** under both writers, and has to be:
+expansion runs in Documenter's `ExpandTemplates` stage, before a writer has
+been chosen, and a two-format build has more than one. So every difference
+between the two is settled in CSS, in a second stylesheet the extension adds
+next to `landing.css`:
+
+- **Palette.** `landing.css` carries a palette per shipped *Documenter*
+  theme, keyed on `html.theme--<name>`. MaterialDocs emits no such class: it
+  generates Material Design 3 tokens from the theme seed. The companion sheet
+  maps the `--landing-*` properties onto those roles once
+  (`--landing-accent` → `--md-sys-color-primary`, `--landing-surface` →
+  `--md-sys-color-surface-container`, and so on). MaterialDocs already flips
+  its own tokens for dark mode, so one mapping covers every theme and all
+  four `dark_mode` settings.
+- **Light/dark images.** The hero's `image.dark` and per-theme feature icons
+  render with Documenter's `.docs-light-only` / `.docs-dark-only` classes,
+  which come from Documenter's compiled theme CSS. The companion sheet
+  defines them against MaterialDocs' `prefers-color-scheme` and
+  `[data-theme]` mechanism, so exactly one variant shows.
+- **Width.** The landing column widens from MaterialDocs' 52rem article cap
+  to the 72rem a VitePress home layout uses. The hero is sized in container
+  query units against itself, so it rescales with the column rather than
+  reflowing. An "On this page" rail with nothing in it (a page that is only a
+  landing has no Markdown headings) is hidden and its grid track collapses; a
+  rail with real headings under the landing is left alone.
+
+Your own `--landing-*` overrides work exactly as they do under Documenter:
+the shipped rules chain your variable over the shipped default, so load order
+does not matter.
+
 ## Your own gradients
 
 Four variables control the gradient effects. Declare them in your own

@@ -2,6 +2,8 @@
 Manifest.toml
 /docs/build/
 test/docsite/build
+test/docsite/build-base
+test/docsite/build-material
 /node_modules/
 /.scratch/
 .idea/

@@ -249,7 +249,14 @@ function _render_landing(data::AbstractDict, doc, page)
     push!(parts, "<header class=\"landing-hero\">")
     push!(parts, "  <div class=\"landing-hero__text\">")
     name = get(hero, "name", "")
-    isempty(name) || push!(parts, "    <p class=\"landing-name\">$(_esc(name))</p>")
+    # The name's character count rides along as a custom property: the
+    # stylesheet caps the name's size at what fits its column on one line (a
+    # package name is one unbreakable word, so it cannot wrap out of trouble),
+    # and CSS cannot count characters. See --landing-name-chars in landing.css.
+    isempty(name) || push!(
+        parts,
+        "    <p class=\"landing-name\" style=\"--landing-name-chars: $(length(name))\">$(_esc(name))</p>",
+    )
     text = get(hero, "text", "")
     isempty(text) || push!(parts, "    <h1 class=\"landing-title\">$(_esc(text))</h1>")
     tagline = get(hero, "tagline", "")
