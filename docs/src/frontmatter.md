@@ -257,7 +257,7 @@ The rules:
     and hovering darkens the text further. Bold and italic text are
     unaffected; they keep the tile's own text color. A user stylesheet can
     restore the normal code color (`.landing-feature code { color: … }`),
-    since your own assets win over the plugin's sheet.
+    which is more specific than Documenter's `a code` rule.
 
 Titles, the hero text, and button labels stay plain text, matching VitePress.
 

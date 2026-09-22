@@ -28,9 +28,11 @@
  * MaterialDocs generates both schemes from the theme seed and flips them with
  * `@media (prefers-color-scheme: dark)` / `[data-theme="dark"]` on :root, so
  * mapping the roles once is automatically dark-aware — there is deliberately
- * no second block below for dark mode. A user stylesheet still wins: it is
- * loaded after this one and landing.css reads --landing-name-background and
- * --landing-glow (not the -default pair) first. */
+ * no second block below for dark mode. This sheet is pushed after the user's
+ * `assets=` stylesheets, so the palette variables defined here are not a user
+ * override point; the accent follows the Material theme seed. User overrides
+ * still work: landing.css reads --landing-name-background and --landing-glow
+ * first, and this sheet only defines the -default pair. */
 :root {
     --landing-surface: var(--md-sys-color-surface-container);
     --landing-surface-2: var(--md-sys-color-surface-container-high);

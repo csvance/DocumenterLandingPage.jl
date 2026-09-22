@@ -141,7 +141,10 @@ next to `landing.css`:
 
 Your own `--landing-*` overrides work exactly as they do under Documenter:
 the shipped rules chain your variable over the shipped default, so load order
-does not matter.
+does not matter. The palette variables (`--landing-accent` and the rest) are
+not an override point under either writer, since the plugin's sheets load
+after yours; under MaterialDocs, change the accent through the `Material3`
+theme instead.
 
 ## Your own gradients
 
