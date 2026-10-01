@@ -1,0 +1,274 @@
+/* Stylesheet for the VitePress-style landing page rendered by
+ * DocumenterLandingPage.jl.
+ *
+ * Theming is theme-adaptive: the landing components consume only the CSS
+ * custom properties below, and the `html.theme--<name>` blocks mirror
+ * Documenter's own SCSS palette for each of its six shipped themes
+ * (documenter-light, documenter-dark, and the four catppuccin flavors), so
+ * the landing page follows the visitor's theme with no custom palette of its
+ * own. Values are transcribed from Documenter's theme SCSS:
+ *
+ *   - `--landing-surface`:   `$background`       (tiles, alt buttons)
+ *   - `--landing-surface-2`: one step further     (emoji badges)
+ *   - `--landing-border`:    a step between       (tile borders)
+ *   - `--landing-accent`:    `$link`              (name, brand button)
+ *   - `--landing-accent-contrast`: text on the brand button
+ *   - `--landing-glow`:      the hero image's radial glow, in the accent hue
+ *
+ * Text and headings are deliberately left to inherit from the theme; nothing
+ * here overrides Documenter's own chrome.
+ */
+
+:root {
+    --landing-surface: #f5f5f5;
+    --landing-surface-2: #dbdee0;
+    --landing-border: #e0e0e0;
+    --landing-accent: #2e63b8;
+    --landing-accent-contrast: #fff;
+    --landing-glow: rgba(46, 99, 184, 0.30);
+}
+
+html.theme--documenter-dark {
+    --landing-surface: #282f2f;
+    --landing-surface-2: #343c3d;
+    --landing-border: #343c3d;
+    --landing-accent: #1abc9c;
+    --landing-accent-contrast: #00332a;
+    --landing-glow: rgba(26, 188, 156, 0.30);
+}
+
+html.theme--catppuccin-latte {
+    --landing-surface: #e6e9ef;
+    --landing-surface-2: #bcc0cc;
+    --landing-border: #ccd0da;
+    --landing-accent: #1e66f5;
+    --landing-accent-contrast: #fff;
+    --landing-glow: rgba(30, 102, 245, 0.28);
+}
+
+html.theme--catppuccin-frappe {
+    --landing-surface: #292c3c;
+    --landing-surface-2: #51576d;
+    --landing-border: #414559;
+    --landing-accent: #8caaee;
+    --landing-accent-contrast: #303446;
+    --landing-glow: rgba(140, 170, 238, 0.28);
+}
+
+html.theme--catppuccin-macchiato {
+    --landing-surface: #1e2030;
+    --landing-surface-2: #494d64;
+    --landing-border: #363a4f;
+    --landing-accent: #8aadf4;
+    --landing-accent-contrast: #24273a;
+    --landing-glow: rgba(138, 173, 244, 0.28);
+}
+
+html.theme--catppuccin-mocha {
+    --landing-surface: #181825;
+    --landing-surface-2: #45475a;
+    --landing-border: #313244;
+    --landing-accent: #89b4fa;
+    --landing-accent-contrast: #1e1e2e;
+    --landing-glow: rgba(137, 180, 250, 0.28);
+}
+
+/* The landing page spans the same content width as a VitePress home layout
+ * (Documenter caps the content column at 52rem; the VitePress home container
+ * is 72rem). The theme files scope their rules under html.theme--<name>, so
+ * these selectors carry the same specificity to win regardless of order. */
+body:has(#landing) #documenter .docs-main,
+body:has(#landing) #documenter .docs-main > article {
+    max-width: 72rem;
+}
+
+/* ---- Hero: two columns, text left, logo right, vertically centered ---- */
+#landing .landing-hero {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    padding: 2rem 0 2.5rem;
+    /* Clip only the horizontal axis so the hero can never push the page
+     * wider than the viewport. The glow stays visible in full vertically,
+     * so it renders as an unclipped circle instead of getting sliced flat. */
+    overflow-x: clip;
+}
+#landing .landing-hero__text {
+    flex: 0 1 58%;
+    min-width: 0;
+}
+#landing .landing-name {
+    margin: 0 0 0.75rem;
+    /* Fluid: interpolates between the mobile (1.5rem) and desktop (3.25rem)
+     * sizes as the viewport grows. The ramp is keyed so the desktop size is
+     * only reached once the text column can actually fit the long package
+     * name on one line — Documenter's sidebar consumes ~300px of width, so
+     * this happens later than the column's own 72rem cap. This keeps the
+     * name on a single line across the whole range instead of ugly-wrapping. */
+    font-size: clamp(1.5rem, calc(2.713vw + 3.16px), 3.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--landing-accent);
+    overflow-wrap: anywhere;
+}
+#landing .landing-title {
+    margin: 0 0 1.25rem;
+    font-size: clamp(2rem, calc(1.938vw + 17.1px), 3.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+}
+#landing .landing-tagline {
+    margin: 0 0 1.75rem;
+    font-size: clamp(1.05rem, calc(0.31vw + 14.4px), 1.25rem);
+    line-height: 1.6;
+}
+#landing .landing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+#landing .landing-btn {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--landing-border);
+}
+#landing .landing-btn--brand {
+    background-color: var(--landing-accent);
+    border-color: transparent;
+    color: var(--landing-accent-contrast);
+}
+#landing .landing-btn--alt {
+    background-color: var(--landing-surface);
+    color: inherit;
+}
+#landing .landing-btn:hover {
+    text-decoration: none;
+}
+#landing .landing-btn--alt:hover {
+    background-color: var(--landing-surface-2);
+}
+#landing .landing-hero__image {
+    flex: 0 1 42%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+#landing .landing-hero__image img {
+    /* Shrink the logo fluidly with the viewport too, in step with the hero
+     * type: from 180px (mobile) up to 320px (desktop). */
+    width: clamp(180px, calc(13.57vw + 75.8px), 320px);
+    height: auto;
+    position: relative;
+    z-index: 1;
+}
+/* Soft radial glow behind the hero image, in the theme's accent hue. The
+ * box is forced square (aspect-ratio: 1) so the radial gradient renders as a
+ * true circle and looks isotropic on every layout, and it is kept within the
+ * image column so it never bleeds past the content column on the right. */
+#landing .landing-hero__image::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 88%;
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, var(--landing-glow), transparent 70%);
+    filter: blur(20px);
+    z-index: 0;
+}
+
+/* ---- Features: 3x2 grid of tiles with emoji badges ---- */
+#landing .landing-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 0.5rem 0 2rem;
+}
+#landing .landing-feature {
+    background-color: var(--landing-surface);
+    border: 1px solid var(--landing-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+}
+#landing .landing-feature:hover {
+    border-color: var(--landing-accent);
+}
+#landing .landing-feature__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background-color: var(--landing-surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+#landing .landing-feature__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+#landing .landing-feature__details {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+
+/* ---- Responsive: stack below a tablet width ---- */
+@media (max-width: 768px) {
+    #landing .landing-hero {
+        flex-direction: column-reverse;
+        align-items: center;
+        text-align: left;
+        gap: 2rem;
+    }
+    #landing .landing-hero__text {
+        flex: 1 1 auto;
+        width: 100%;
+        overflow-wrap: anywhere;
+    }
+    /* Desktop hero type is sized for a two-column layout; when stacked it is
+     * oversized and forces ugly mid-word wrapping, so pull it down toward the
+     * VitePress mobile scale and shrink the logo to match. */
+    #landing .landing-name {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    #landing .landing-title {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    #landing .landing-tagline {
+        font-size: 1.05rem;
+        margin-bottom: 1.25rem;
+    }
+    #landing .landing-name,
+    #landing .landing-title,
+    #landing .landing-tagline {
+        overflow-wrap: anywhere;
+    }
+    #landing .landing-hero__image img {
+        width: min(180px, 70%);
+    }
+    #landing .landing-hero__image::before {
+        /* On the stacked layout the image column spans the full width but is
+         * only as tall as the image (~180px). A column-relative glow would
+         * balloon at wider phone widths, so size it to the image instead: a
+         * fixed circle that hugs the logo and stays fully within the hero. */
+        width: 220px;
+    }
+    #landing .landing-features {
+        grid-template-columns: 1fr;
+    }
+}
